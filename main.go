@@ -29,6 +29,7 @@ func TwitchChat() {
 }
 
 func Speak(texto string) {
-	speech := htgotts.Speech{Folder: "audio", Language: "es"}
+	speech := htgotts.Speech{Folder: "audio", Language: "fr"}
 	speech.Speak(texto)
+
 }
