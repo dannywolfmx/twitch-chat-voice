@@ -2,3 +2,4 @@
 
 * Hacer un fork del tts para integrar oto como player
 * Crear un skip de mensaje
+* Eliminar los archivos que se generan de /audio
