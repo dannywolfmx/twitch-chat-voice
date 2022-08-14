@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"image"
 	"image/color"
 
 	"gioui.org/layout"
+	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/text"
 	"gioui.org/unit"
@@ -61,7 +63,7 @@ func (m *Main) Layout(gtx Context) Dimensions {
 	}
 
 	elements := []FlexChild{
-		Container(m.textField),
+		Container(m.textInput),
 		SpacerVertical(50),
 		Container(m.messageText),
 		SpacerVertical(50),
@@ -81,7 +83,7 @@ func (m *Main) buttonSkip(gtx Context) Dimensions {
 	return material.Button(m.Theme, button, "Skip").Layout(gtx)
 }
 
-func (m *Main) textField(gtx Context) Dimensions {
+func (m *Main) textInput(gtx Context) Dimensions {
 	for _, e := range editor.Events() {
 		if e, ok := e.(widget.SubmitEvent); ok {
 			m.TwitchChannel <- e.Text
@@ -92,11 +94,70 @@ func (m *Main) textField(gtx Context) Dimensions {
 
 	e := material.Editor(m.Theme, editor, "Twitch channel")
 	e.Font.Style = text.Italic
-	border := widget.Border{Color: color.NRGBA{R: 113, G: 140, B: 158, A: 255}, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
-	return border.Layout(gtx, func(gtx Context) Dimensions {
-		return layout.UniformInset(unit.Dp(8)).Layout(gtx, e.Layout)
-	})
 
+	c := color.NRGBA{R: 113, G: 140, B: 158, A: 255}
+
+	sizeX := gtx.Constraints.Min.X
+
+	border := widget.Border{Color: c, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
+	return border.Layout(gtx, func(gtx Context) Dimensions {
+		return layout.Stack{}.Layout(gtx,
+			layout.Expanded(func(gtx Context) Dimensions {
+				defer clip.UniformRRect(image.Rectangle{Max: gtx.Constraints.Min}, 8).Push(gtx.Ops).Pop()
+				paint.Fill(gtx.Ops, c)
+				return Dimensions{Size: gtx.Constraints.Min}
+			}),
+			layout.Stacked(func(gtx Context) Dimensions {
+				gtx.Constraints.Min.X = sizeX
+				return layout.UniformInset(unit.Dp(8)).Layout(gtx, e.Layout)
+			}),
+		)
+	},
+	)
+
+	//return layout.Stack{}.Layout(gtx,
+	//	layout.Expanded(func(gtx Context) Dimensions {
+	//		border := widget.Border{Color: c, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
+	//		return border.Layout(gtx, func(gtx Context) Dimensions {
+
+	//			return layout.UniformInset(unit.Dp(8)).Layout(gtx, e.Layout)
+	//		})
+	//	}),
+	//)
+
+	//	border := widget.Border{Color: c, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
+	//	return border.Layout(gtx, func(gtx Context) Dimensions {
+	//		return layout.UniformInset(unit.Dp(8)).Layout(gtx, e.Layout)
+	//	})
+}
+
+func (m *Main) textInputBorder(gtx Context) Dimensions {
+	for _, e := range editor.Events() {
+		if e, ok := e.(widget.SubmitEvent); ok {
+			m.TwitchChannel <- e.Text
+
+			editor.SetText("")
+		}
+	}
+
+	e := material.Editor(m.Theme, editor, "Twitch channel")
+	e.Font.Style = text.Italic
+
+	c := color.NRGBA{R: 113, G: 140, B: 158, A: 255}
+
+	return layout.Stack{Alignment: layout.Center}.Layout(gtx,
+		layout.Expanded(func(gtx Context) Dimensions {
+			defer clip.UniformRRect(image.Rectangle{Max: gtx.Constraints.Min}, 8).Push(gtx.Ops).Pop()
+			paint.Fill(gtx.Ops, c)
+			return Dimensions{Size: gtx.Constraints.Min}
+		}),
+		layout.Stacked(func(gtx Context) Dimensions {
+			border := widget.Border{Color: color.NRGBA{R: 113, G: 140, B: 158, A: 255}, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
+			return border.Layout(gtx, func(gtx Context) Dimensions {
+				return layout.UniformInset(unit.Dp(8)).Layout(gtx, e.Layout)
+			})
+		}),
+	)
 }
 
 func (m *Main) messageText(gtx Context) Dimensions {
