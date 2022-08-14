@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"image/color"
 
 	"gioui.org/layout"
@@ -10,6 +9,16 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
+)
+
+type (
+	Context    = layout.Context
+	Dimensions = layout.Dimensions
+
+	FlexChild = layout.FlexChild
+	Flex      = layout.Flex
+	Inset     = layout.Inset
+	Widget    = layout.Widget
 )
 
 var editor = &widget.Editor{
@@ -27,7 +36,7 @@ type Main struct {
 	Skip          chan bool
 }
 
-func (m *Main) Layout(gtx layout.Context) layout.Dimensions {
+func (m *Main) Layout(gtx Context) Dimensions {
 
 	c := color.NRGBA{
 		R: m.Theme.Bg.R,
@@ -39,19 +48,19 @@ func (m *Main) Layout(gtx layout.Context) layout.Dimensions {
 	paint.ColorOp{Color: c}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
-	margin := layout.Inset{
+	margin := Inset{
 		Top:    unit.Dp(25),
 		Bottom: unit.Dp(25),
 		Right:  unit.Dp(35),
 		Left:   unit.Dp(35),
 	}
 
-	flex := layout.Flex{
+	flex := Flex{
 		Axis:    layout.Vertical,
 		Spacing: layout.SpaceStart,
 	}
 
-	elements := []layout.FlexChild{
+	elements := []FlexChild{
 		Container(m.textField),
 		SpacerVertical(50),
 		Container(m.messageText),
@@ -60,20 +69,19 @@ func (m *Main) Layout(gtx layout.Context) layout.Dimensions {
 		SpacerVertical(50),
 	}
 
-	return margin.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	return margin.Layout(gtx, func(gtx Context) Dimensions {
 		return flex.Layout(gtx, elements...)
 	})
 }
 
-func (m *Main) buttonSkip(gtx layout.Context) layout.Dimensions {
+func (m *Main) buttonSkip(gtx Context) Dimensions {
 	for button.Clicked() {
-		fmt.Println("Fui clickeado")
 		m.Skip <- true
 	}
 	return material.Button(m.Theme, button, "Skip").Layout(gtx)
 }
 
-func (m *Main) textField(gtx layout.Context) layout.Dimensions {
+func (m *Main) textField(gtx Context) Dimensions {
 	for _, e := range editor.Events() {
 		if e, ok := e.(widget.SubmitEvent); ok {
 			m.TwitchChannel <- e.Text
@@ -85,13 +93,13 @@ func (m *Main) textField(gtx layout.Context) layout.Dimensions {
 	e := material.Editor(m.Theme, editor, "Twitch channel")
 	e.Font.Style = text.Italic
 	border := widget.Border{Color: color.NRGBA{R: 113, G: 140, B: 158, A: 255}, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
-	return border.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	return border.Layout(gtx, func(gtx Context) Dimensions {
 		return layout.UniformInset(unit.Dp(8)).Layout(gtx, e.Layout)
 	})
 
 }
 
-func (m *Main) messageText(gtx layout.Context) layout.Dimensions {
+func (m *Main) messageText(gtx Context) Dimensions {
 	title := material.H4(m.Theme, m.Texto)
 
 	title.Color = m.Theme.Fg
@@ -99,7 +107,7 @@ func (m *Main) messageText(gtx layout.Context) layout.Dimensions {
 	return title.Layout(gtx)
 }
 
-func SpacerVertical(dp unit.Dp) layout.FlexChild {
+func SpacerVertical(dp unit.Dp) FlexChild {
 	spacer := layout.Spacer{
 		Height: unit.Dp(dp),
 	}
@@ -107,6 +115,6 @@ func SpacerVertical(dp unit.Dp) layout.FlexChild {
 	return layout.Rigid(spacer.Layout)
 }
 
-func Container(content layout.Widget) layout.FlexChild {
+func Container(content Widget) FlexChild {
 	return layout.Rigid(content)
 }
