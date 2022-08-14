@@ -9,10 +9,9 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/text"
-	"gioui.org/unit"
 	"gioui.org/widget/material"
 	"github.com/dannywolfmx/go-tts/tts"
+	"github.com/dannywolfmx/twitch-chat-voice/ui"
 	"github.com/gempir/go-twitch-irc/v3"
 )
 
@@ -21,10 +20,12 @@ var done = make(chan bool)
 
 var texto string
 
+var client *twitch.Client
+var player *tts.TTS
+
 func main() {
-	twitchChannelName := "dannywolfmx2"
-	client := twitch.NewAnonymousClient()
-	player := tts.NewTTS("es")
+	client = twitch.NewAnonymousClient()
+	player = tts.NewTTS("es")
 	//client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
 
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
@@ -44,12 +45,10 @@ func main() {
 		}
 	}()
 
-	client.Join(twitchChannelName)
-
-	client.Say(twitchChannelName, "/vips")
-
 	go func() {
-		w := app.NewWindow()
+		w := app.NewWindow(
+			app.Title("Twitch text to voice"),
+		)
 		run(w, player, client)
 	}()
 
@@ -59,6 +58,13 @@ func main() {
 func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 
 	theme := material.NewTheme(gofont.Collection())
+	theme.Bg = color.NRGBA{R: 54, G: 69, B: 79, A: 255}
+	theme.Fg = color.NRGBA{
+		R: 195,
+		G: 206,
+		B: 214,
+		A: 255,
+	}
 	var ops op.Ops
 
 	for {
@@ -76,6 +82,7 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 			}
 		case m := <-screenText:
 			texto = m
+
 			w.Invalidate()
 		}
 	}
@@ -83,21 +90,31 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 
 func Layout(theme *material.Theme, ops *op.Ops, e system.FrameEvent) {
 	gtx := layout.NewContext(ops, e)
-	layout.Flex{
-		Axis:    layout.Vertical,
-		Spacing: layout.SpaceStart,
-	}.Layout(gtx,
-		layout.Rigid(layout.Spacer{Height: unit.Dp(25)}.Layout),
-		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-			title := material.H1(theme, texto)
-			maroon := color.NRGBA{R: 127, A: 255}
 
-			title.Color = maroon
-			title.Alignment = text.Middle
-			return title.Layout(gtx)
-		}),
-		layout.Rigid(layout.Spacer{Height: unit.Dp(25)}.Layout),
-	)
+	main := ui.Main{
+		Theme:         theme,
+		Texto:         texto,
+		TwitchChannel: make(chan string),
+		Skip:          make(chan bool),
+	}
+
+	go func() {
+		for t := range main.TwitchChannel {
+			fmt.Println(t)
+			client.Join(t)
+		}
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-main.Skip:
+				player.Skip()
+			}
+		}
+	}()
+
+	main.Layout(gtx)
 
 	e.Frame(gtx.Ops)
 }
