@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"os"
+	"os/signal"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -50,6 +52,18 @@ func main() {
 			app.Title("Twitch text to voice"),
 		)
 		run(w, player, client)
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	go func() {
+		for {
+			select {
+			case <-quit:
+				client.Disconnect()
+				player.Stop()
+			}
+		}
 	}()
 
 	fmt.Println(client.Connect())
