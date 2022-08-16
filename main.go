@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"image/color"
+	"image"
+	"image/jpeg"
+	"net/http"
 	"os"
 	"os/signal"
 
@@ -11,7 +13,6 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/widget/material"
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/ui"
 	"github.com/gempir/go-twitch-irc/v3"
@@ -25,9 +26,27 @@ var texto string
 var client *twitch.Client
 var player *tts.TTS
 
+var img image.Image
+
 func main() {
 	client = twitch.NewAnonymousClient()
 	player = tts.NewTTS("es")
+	url := "https://go.dev/blog/gopher/header.jpg"
+	res, err := http.Get(url)
+
+	if err != nil {
+		panic("Error al descargar imagen")
+	}
+
+	if err != nil {
+		panic("Error al leer buffer de la imagen")
+	}
+
+	img, err = jpeg.Decode(res.Body)
+	defer res.Body.Close()
+	if err != nil {
+		panic("Error al leer buffer de la imagen")
+	}
 	//client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
 
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
@@ -71,14 +90,12 @@ func main() {
 
 func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 
-	theme := material.NewTheme(gofont.Collection())
-	theme.Bg = color.NRGBA{R: 54, G: 69, B: 79, A: 255}
-	theme.Fg = color.NRGBA{
-		R: 195,
-		G: 206,
-		B: 214,
-		A: 255,
-	}
+	theme := ui.NewTheme(gofont.Collection())
+	theme.Bg = ui.NewColor(0x191E38FF)
+	theme.Fg = ui.NewColor(0x2F365FFF)
+	theme.ContrastBg = ui.NewColor(0x5661B3FF)
+	theme.TextColor = ui.NewColor(0xE6E8FFFF)
+
 	var ops op.Ops
 
 	for {
@@ -102,7 +119,7 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 	}
 }
 
-func Layout(theme *material.Theme, ops *op.Ops, e system.FrameEvent) {
+func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
 	gtx := layout.NewContext(ops, e)
 
 	main := ui.Main{
@@ -110,6 +127,7 @@ func Layout(theme *material.Theme, ops *op.Ops, e system.FrameEvent) {
 		Texto:         texto,
 		TwitchChannel: make(chan string),
 		Skip:          make(chan bool),
+		Img:           img,
 	}
 
 	go func() {
