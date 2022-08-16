@@ -16,6 +16,7 @@ import (
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/ui"
 	"github.com/gempir/go-twitch-irc/v3"
+	"github.com/oliamb/cutter"
 )
 
 var screenText = make(chan string)
@@ -44,6 +45,14 @@ func main() {
 
 	img, err = jpeg.Decode(res.Body)
 	defer res.Body.Close()
+	if err != nil {
+		panic("Error al leer buffer de la imagen")
+	}
+
+	img, err = cutter.Crop(img, cutter.Config{
+		Width:  250,
+		Height: 250,
+	})
 	if err != nil {
 		panic("Error al leer buffer de la imagen")
 	}

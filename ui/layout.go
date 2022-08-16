@@ -124,13 +124,12 @@ func (m *Main) textInput(gtx Context) Dimensions {
 
 func (m *Main) TwitchIcon(gtx Context) Dimensions {
 
-	sizeX := gtx.Constraints.Min.X
 	c := NewColor(0xFFFFFFFF)
 
 	border := widget.Border{Color: c, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
 	return border.Layout(gtx, func(gtx Context) Dimensions {
 		return layout.Stack{Alignment: layout.Center}.Layout(gtx,
-			layout.Stacked(func(gtx Context) Dimensions {
+			layout.Expanded(func(gtx Context) Dimensions {
 				imageOpt := paint.NewImageOp(m.Img)
 				imageOpt.Add(gtx.Ops)
 
@@ -138,13 +137,12 @@ func (m *Main) TwitchIcon(gtx Context) Dimensions {
 				op.Affine(f32.Affine2D{}.Shear(f32.Pt(0, 0), 1, 20))
 				paint.PaintOp{}.Add(gtx.Ops)
 
-				return Dimensions{Size: image.Pt(20, 20)}
+				return Dimensions{Size: image.Pt(256, 256)}
 			}),
 			layout.Stacked(func(gtx Context) Dimensions {
 				defer clip.UniformRRect(image.Rectangle{Max: image.Pt(256, 256)}, 8).Push(gtx.Ops).Pop()
-				paint.Fill(gtx.Ops, c)
-				gtx.Constraints.Min.X = sizeX
-				return Dimensions{Size: image.Pt(256, 256)}
+				paint.Fill(gtx.Ops, NewColor(0xFFFFFF09))
+				return Dimensions{Size: gtx.Constraints.Min}
 			}),
 		)
 	})
