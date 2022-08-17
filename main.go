@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"image"
+	"image/color"
+	"image/draw"
 	"image/jpeg"
 	"net/http"
 	"os"
@@ -50,14 +52,12 @@ func main() {
 	}
 
 	img, err = cutter.Crop(img, cutter.Config{
-		Width:  250,
-		Height: 250,
+		Width:  256,
+		Height: 256,
+		Mode:   cutter.Centered,
 	})
-	if err != nil {
-		panic("Error al leer buffer de la imagen")
-	}
-	//client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
 
+	//client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		m := fmt.Sprintf("%s: %s \n", message.User.Name, message.Message)
 		player.Play(m)
@@ -158,4 +158,51 @@ func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
 	main.Layout(gtx)
 
 	e.Frame(gtx.Ops)
+}
+func drawCircle(img draw.Image, x0, y0, r int, c color.Color) {
+	x, y, dx, dy := r-1, 0, 1, 1
+	err := dx - (r * 2)
+
+	for x > y {
+		img.Set(x0+x, y0+y, c)
+		img.Set(x0+y, y0+x, c)
+		img.Set(x0-y, y0+x, c)
+		img.Set(x0-x, y0+y, c)
+		img.Set(x0-x, y0-y, c)
+		img.Set(x0-y, y0-x, c)
+		img.Set(x0+y, y0-x, c)
+		img.Set(x0+x, y0-y, c)
+
+		if err <= 0 {
+			y++
+			err += dy
+			dy += 2
+		}
+		if err > 0 {
+			x--
+			dx += 2
+			err += dx - (r * 2)
+		}
+	}
+}
+
+type circle struct {
+	p image.Point
+	r int
+}
+
+func (c *circle) ColorModel() color.Model {
+	return color.AlphaModel
+}
+
+func (c *circle) Bounds() image.Rectangle {
+	return image.Rect(c.p.X-c.r, c.p.Y-c.r, c.p.X+c.r, c.p.Y+c.r)
+}
+
+func (c *circle) At(x, y int) color.Color {
+	xx, yy, rr := float64(x-c.p.X)+0.5, float64(y-c.p.Y)+0.5, float64(c.r)
+	if xx*xx+yy*yy < rr*rr {
+		return color.Alpha{255}
+	}
+	return color.Alpha{0}
 }

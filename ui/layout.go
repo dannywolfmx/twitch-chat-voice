@@ -4,9 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"gioui.org/f32"
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/text"
@@ -124,28 +122,25 @@ func (m *Main) textInput(gtx Context) Dimensions {
 
 func (m *Main) TwitchIcon(gtx Context) Dimensions {
 
-	c := NewColor(0xFFFFFFFF)
+	rec := m.Img.Bounds()
+	rec.Max.X = rec.Max.X - rec.Min.X
+	rec.Min = image.ZP
+	return layout.Stack{Alignment: layout.Center}.Layout(gtx,
+		layout.Expanded(func(gtx Context) Dimensions {
+			defer clip.UniformRRect(rec, 50).Push(gtx.Ops).Pop()
+			imageOpt := paint.NewImageOp(m.Img)
+			imageOpt.Add(gtx.Ops)
 
-	border := widget.Border{Color: c, CornerRadius: unit.Dp(8), Width: unit.Dp(2)}
-	return border.Layout(gtx, func(gtx Context) Dimensions {
-		return layout.Stack{Alignment: layout.Center}.Layout(gtx,
-			layout.Expanded(func(gtx Context) Dimensions {
-				imageOpt := paint.NewImageOp(m.Img)
-				imageOpt.Add(gtx.Ops)
+			paint.PaintOp{}.Add(gtx.Ops)
 
-				op.Affine(f32.Affine2D{}.Scale(f32.Pt(0, 0), f32.Pt(4, 4)))
-				op.Affine(f32.Affine2D{}.Shear(f32.Pt(0, 0), 1, 20))
-				paint.PaintOp{}.Add(gtx.Ops)
-
-				return Dimensions{Size: image.Pt(256, 256)}
-			}),
-			layout.Stacked(func(gtx Context) Dimensions {
-				defer clip.UniformRRect(image.Rectangle{Max: image.Pt(256, 256)}, 8).Push(gtx.Ops).Pop()
-				paint.Fill(gtx.Ops, NewColor(0xFFFFFF09))
-				return Dimensions{Size: gtx.Constraints.Min}
-			}),
-		)
-	})
+			return Dimensions{Size: rec.Max}
+		}),
+		layout.Stacked(func(gtx Context) Dimensions {
+			defer clip.UniformRRect(rec, 50).Push(gtx.Ops).Pop()
+			paint.Fill(gtx.Ops, NewColor(0xFFFFFF09))
+			return Dimensions{Size: rec.Max}
+		}),
+	)
 }
 
 func (m *Main) messageText(gtx Context) Dimensions {
