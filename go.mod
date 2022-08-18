@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	gioui.org v0.0.0-20220808141521-a55065af9c1e
-	github.com/dannywolfmx/go-tts v0.1.2
+	github.com/dannywolfmx/go-tts v0.1.3
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/oliamb/cutter v0.2.2
 )
@@ -19,6 +19,6 @@ require (
 	github.com/hajimehoshi/oto/v2 v2.2.0 // indirect
 	golang.org/x/exp v0.0.0-20210722180016-6781d3edade3 // indirect
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )

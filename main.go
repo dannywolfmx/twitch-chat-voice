@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/color"
-	"image/draw"
 	"image/jpeg"
 	"net/http"
 	"os"
@@ -31,6 +29,8 @@ var player *tts.TTS
 
 var img image.Image
 
+var quit = make(chan os.Signal, 1)
+
 func main() {
 	client = twitch.NewAnonymousClient()
 	player = tts.NewTTS("es")
@@ -39,10 +39,6 @@ func main() {
 
 	if err != nil {
 		panic("Error al descargar imagen")
-	}
-
-	if err != nil {
-		panic("Error al leer buffer de la imagen")
 	}
 
 	img, err = jpeg.Decode(res.Body)
@@ -74,19 +70,23 @@ func main() {
 		run(w, player, client)
 	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, os.Kill)
+	done := make(chan struct{}, 1)
 	go func() {
-		for {
-			select {
-			case <-quit:
-				client.Disconnect()
-				player.CleanCache()
-			}
-		}
+		<-quit
+		stopProgram()
+		os.Exit(0)
+		done <- struct{}{}
 	}()
 
 	fmt.Println(client.Connect())
+	<-done
+}
+
+func stopProgram() {
+	client.Disconnect()
+	player.Stop()
+	player.CleanCache()
 }
 
 func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
@@ -105,8 +105,7 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 			switch e := e.(type) {
 
 			case system.DestroyEvent:
-				client.Disconnect()
-				player.Stop()
+				quit <- os.Interrupt
 				return e.Err
 			case system.FrameEvent:
 				Layout(theme, &ops, e)
@@ -150,51 +149,4 @@ func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
 	main.Layout(gtx)
 
 	e.Frame(gtx.Ops)
-}
-func drawCircle(img draw.Image, x0, y0, r int, c color.Color) {
-	x, y, dx, dy := r-1, 0, 1, 1
-	err := dx - (r * 2)
-
-	for x > y {
-		img.Set(x0+x, y0+y, c)
-		img.Set(x0+y, y0+x, c)
-		img.Set(x0-y, y0+x, c)
-		img.Set(x0-x, y0+y, c)
-		img.Set(x0-x, y0-y, c)
-		img.Set(x0-y, y0-x, c)
-		img.Set(x0+y, y0-x, c)
-		img.Set(x0+x, y0-y, c)
-
-		if err <= 0 {
-			y++
-			err += dy
-			dy += 2
-		}
-		if err > 0 {
-			x--
-			dx += 2
-			err += dx - (r * 2)
-		}
-	}
-}
-
-type circle struct {
-	p image.Point
-	r int
-}
-
-func (c *circle) ColorModel() color.Model {
-	return color.AlphaModel
-}
-
-func (c *circle) Bounds() image.Rectangle {
-	return image.Rect(c.p.X-c.r, c.p.Y-c.r, c.p.X+c.r, c.p.Y+c.r)
-}
-
-func (c *circle) At(x, y int) color.Color {
-	xx, yy, rr := float64(x-c.p.X)+0.5, float64(y-c.p.Y)+0.5, float64(c.r)
-	if xx*xx+yy*yy < rr*rr {
-		return color.Alpha{255}
-	}
-	return color.Alpha{0}
 }
