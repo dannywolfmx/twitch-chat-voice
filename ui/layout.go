@@ -35,7 +35,7 @@ type Main struct {
 	Texto         string
 	Editor        *widget.Editor
 	TwitchChannel chan string
-	Skip          chan bool
+	Next          chan bool
 	Img           image.Image
 }
 
@@ -81,7 +81,7 @@ func (m *Main) Layout(gtx Context) Dimensions {
 
 func (m *Main) buttonSkip(gtx Context) Dimensions {
 	for button.Clicked() {
-		m.Skip <- true
+		m.Next <- true
 	}
 	return material.Button(m.Theme.Theme, button, "Skip").Layout(gtx)
 }

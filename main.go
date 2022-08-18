@@ -60,20 +60,12 @@ func main() {
 	//client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		m := fmt.Sprintf("%s: %s \n", message.User.Name, message.Message)
-		player.Play(m)
+		player.Add(m)
 	})
 
-	go func() {
-		for playing := range player.Playing() {
-			select {
-			case <-player.Done:
-				return
-			default:
-				screenText <- playing.GetText()
-				playing.Play()
-			}
-		}
-	}()
+	player.OnPlayerStart(func(message string) {
+		screenText <- message
+	})
 
 	go func() {
 		w := app.NewWindow(
@@ -89,7 +81,7 @@ func main() {
 			select {
 			case <-quit:
 				client.Disconnect()
-				player.Stop()
+				player.CleanCache()
 			}
 		}
 	}()
@@ -135,7 +127,7 @@ func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
 		Theme:         theme,
 		Texto:         texto,
 		TwitchChannel: make(chan string),
-		Skip:          make(chan bool),
+		Next:          make(chan bool),
 		Img:           img,
 	}
 
@@ -149,8 +141,8 @@ func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
 	go func() {
 		for {
 			select {
-			case <-main.Skip:
-				player.Skip()
+			case <-main.Next:
+				player.Next()
 			}
 		}
 	}()

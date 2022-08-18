@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	gioui.org v0.0.0-20220808141521-a55065af9c1e
-	github.com/dannywolfmx/go-tts v0.0.9
+	github.com/dannywolfmx/go-tts v0.1.2
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/oliamb/cutter v0.2.2
 )
