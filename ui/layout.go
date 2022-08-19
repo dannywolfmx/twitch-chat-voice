@@ -122,12 +122,16 @@ func (m *Main) textInput(gtx Context) Dimensions {
 
 func (m *Main) TwitchIcon(gtx Context) Dimensions {
 
+	if m.Img == nil {
+		return Dimensions{}
+	}
+
 	rec := m.Img.Bounds()
 	rec.Max.X = rec.Max.X - rec.Min.X
 	rec.Min = image.ZP
 	return layout.Stack{Alignment: layout.Center}.Layout(gtx,
 		layout.Expanded(func(gtx Context) Dimensions {
-			defer clip.UniformRRect(rec, 50).Push(gtx.Ops).Pop()
+			defer clip.Ellipse{Max: rec.Max, Min: rec.Min}.Push(gtx.Ops).Pop()
 			imageOpt := paint.NewImageOp(m.Img)
 			imageOpt.Add(gtx.Ops)
 
@@ -136,7 +140,7 @@ func (m *Main) TwitchIcon(gtx Context) Dimensions {
 			return Dimensions{Size: rec.Max}
 		}),
 		layout.Stacked(func(gtx Context) Dimensions {
-			defer clip.UniformRRect(rec, 50).Push(gtx.Ops).Pop()
+			defer clip.Ellipse{Max: rec.Max, Min: rec.Min}.Push(gtx.Ops).Pop()
 			paint.Fill(gtx.Ops, NewColor(0xFFFFFF09))
 			return Dimensions{Size: rec.Max}
 		}),

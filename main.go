@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
-	"image/jpeg"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 
 	"gioui.org/app"
 	"gioui.org/font/gofont"
@@ -16,10 +19,11 @@ import (
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/ui"
 	"github.com/gempir/go-twitch-irc/v3"
-	"github.com/oliamb/cutter"
+	"github.com/joho/godotenv"
 )
 
 var screenText = make(chan string)
+var userAvatar = make(chan image.Image)
 var done = make(chan bool)
 
 var texto string
@@ -31,27 +35,26 @@ var img image.Image
 
 var quit = make(chan os.Signal, 1)
 
+const (
+	BEARER    = "BEARER"
+	CLIENT_ID = "CLIENT_ID"
+	TEST      = "TEST"
+)
+
+type MyPlayer struct {
+	*tts.TTS
+}
+
 func main() {
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+
+	bearer := os.Getenv(BEARER)
+	client_id := os.Getenv(CLIENT_ID)
+
 	client = twitch.NewAnonymousClient()
 	player = tts.NewTTS("es")
-	url := "https://go.dev/blog/gopher/header.jpg"
-	res, err := http.Get(url)
-
-	if err != nil {
-		panic("Error al descargar imagen")
-	}
-
-	img, err = jpeg.Decode(res.Body)
-	defer res.Body.Close()
-	if err != nil {
-		panic("Error al leer buffer de la imagen")
-	}
-
-	img, err = cutter.Crop(img, cutter.Config{
-		Width:  256,
-		Height: 256,
-		Mode:   cutter.Centered,
-	})
 
 	//client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
@@ -60,6 +63,14 @@ func main() {
 	})
 
 	player.OnPlayerStart(func(message string) {
+		userName := strings.Split(message, ":")
+		if len(userName) == 2 {
+			img, err := getTwitchUserInfo(bearer, client_id, userName[0])
+			if err == nil {
+				userAvatar <- img
+			}
+
+		}
 		screenText <- message
 	})
 
@@ -81,6 +92,59 @@ func main() {
 
 	fmt.Println(client.Connect())
 	<-done
+}
+
+type TwitchUserInfo struct {
+	Data []SingleData `json:"data"`
+}
+
+type SingleData struct {
+	Image string `json:"profile_image_url"`
+}
+
+func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {
+	url := fmt.Sprintf("https://api.twitch.tv/helix/users?login=%s", username)
+
+	client := http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header = http.Header{
+		"Authorization": {fmt.Sprintf("Bearer %s", bearer)},
+		"Client-Id":     {client_id},
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	buff, err := io.ReadAll(res.Body)
+	res.Body.Close()
+
+	userInfo := &TwitchUserInfo{}
+	err = json.Unmarshal(buff, userInfo)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(userInfo.Data) != 1 {
+		return nil, errors.New("No image")
+	}
+
+	res, err = http.Get(userInfo.Data[0].Image)
+	if err != nil {
+		return nil, err
+	}
+
+	img, _, err = image.Decode(res.Body)
+	defer res.Body.Close()
+
+	return img, err
+
 }
 
 func stopProgram() {
@@ -115,6 +179,9 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 			texto = m
 
 			w.Invalidate()
+		case m := <-userAvatar:
+			img = m
+			w.Invalidate()
 		}
 	}
 }
@@ -132,7 +199,6 @@ func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
 
 	go func() {
 		for t := range main.TwitchChannel {
-			fmt.Println(t)
 			client.Join(t)
 		}
 	}()
