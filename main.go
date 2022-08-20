@@ -68,7 +68,6 @@ func main() {
 			if err == nil {
 				img = avatar
 			}
-
 		}
 		texto = message
 		UpdateUI <- true
@@ -175,6 +174,7 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 
 	go func() {
 		for t := range twitchChannel {
+			fmt.Println(t)
 			client.Join(t)
 		}
 	}()
@@ -209,8 +209,6 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 }
 
 func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent, main ui.Main) {
-	//fmt.Println("Redrawing")
-	//fmt.Println(time.Now())
 	gtx := layout.NewContext(ops, e)
 
 	main.Layout(gtx)
