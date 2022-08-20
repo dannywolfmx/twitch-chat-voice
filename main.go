@@ -22,8 +22,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var screenText = make(chan string)
-var userAvatar = make(chan image.Image)
+var UpdateUI = make(chan bool)
 var done = make(chan bool)
 
 var texto string
@@ -65,13 +64,14 @@ func main() {
 	player.OnPlayerStart(func(message string) {
 		userName := strings.Split(message, ":")
 		if len(userName) == 2 {
-			img, err := getTwitchUserInfo(bearer, client_id, userName[0])
+			avatar, err := getTwitchUserInfo(bearer, client_id, userName[0])
 			if err == nil {
-				userAvatar <- img
+				img = avatar
 			}
 
 		}
-		screenText <- message
+		texto = message
+		UpdateUI <- true
 	})
 
 	go func() {
@@ -161,7 +161,32 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 	theme.ContrastBg = ui.NewColor(0x5661B3FF)
 	theme.TextColor = ui.NewColor(0xE6E8FFFF)
 
+	next := make(chan bool)
+	twitchChannel := make(chan string)
+
+	go func() {
+		for {
+			select {
+			case <-next:
+				player.Next()
+			}
+		}
+	}()
+
+	go func() {
+		for t := range twitchChannel {
+			client.Join(t)
+		}
+	}()
+
 	var ops op.Ops
+	main := ui.Main{
+		Theme:         theme,
+		Texto:         texto,
+		TwitchChannel: twitchChannel,
+		Next:          next,
+		Img:           img,
+	}
 
 	for {
 		select {
@@ -172,45 +197,21 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 				quit <- os.Interrupt
 				return e.Err
 			case system.FrameEvent:
-				Layout(theme, &ops, e)
-
+				Layout(theme, &ops, e, main)
 			}
-		case m := <-screenText:
-			texto = m
 
-			w.Invalidate()
-		case m := <-userAvatar:
-			img = m
+		case <-UpdateUI:
+			main.Img = img
+			main.Texto = texto
 			w.Invalidate()
 		}
 	}
 }
 
-func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent) {
+func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent, main ui.Main) {
+	//fmt.Println("Redrawing")
+	//fmt.Println(time.Now())
 	gtx := layout.NewContext(ops, e)
-
-	main := ui.Main{
-		Theme:         theme,
-		Texto:         texto,
-		TwitchChannel: make(chan string),
-		Next:          make(chan bool),
-		Img:           img,
-	}
-
-	go func() {
-		for t := range main.TwitchChannel {
-			client.Join(t)
-		}
-	}()
-
-	go func() {
-		for {
-			select {
-			case <-main.Next:
-				player.Next()
-			}
-		}
-	}()
 
 	main.Layout(gtx)
 
