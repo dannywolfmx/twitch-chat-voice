@@ -5,13 +5,23 @@
         <title>Document</title>
     </head>
     <body>
-        <h1>Loggin completo...</h1>
+        <h1 id="title">Wait a moment</h1>
+
         <script>
             let  u = document.location.hash.substr(1)
             let params = new URLSearchParams(u)
             let token = params.get("access_token")
+            window.addEventListener('load', function () {
+                fetch(`/?token=${token}`).then(r =>{
+                    console.log(r)
+                    document.getElementById("title").innerText = "Now you can close this windows"
 
-            fetch(`/?token=${token}`)
+                    //window.close()
+                }).catch(e =>{
+                    console.log(e)
+                })
+            })
+            console.log("Hola")
         </script>
     </body>
 </html>

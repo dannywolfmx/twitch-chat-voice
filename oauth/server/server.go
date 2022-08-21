@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Server struct {
@@ -35,7 +37,12 @@ func (s *Server) Run(path string) (string, error) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		token = r.URL.Query().Get("token")
-		s.Shutdown(context.TODO())
+		w.WriteHeader(http.StatusOK)
+		io.WriteString(w, "Servidor servido")
+		go func() {
+			time.Sleep(time.Second * 4)
+			s.Shutdown(context.TODO())
+		}()
 	})
 
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
