@@ -16,7 +16,7 @@ type Twitch struct {
 	ClientID     string
 	RedirectURI  string
 	ResponseType string
-	Scope        []string
+	Scopes       []string
 	State        string
 }
 
@@ -25,13 +25,34 @@ func NewTwitch(clientID, redirectURI, responseType, state string, scope ...strin
 		ClientID:     clientID,
 		RedirectURI:  redirectURI,
 		ResponseType: responseType,
-		Scope:        scope,
+		Scopes:       scope,
 		State:        state,
 	}
 }
 
+func NewTwitchDefault(clientID string) *Twitch {
+
+	scopes := []string{
+		"channel:manage:polls",
+		"channel:read:polls",
+		"user:read:email",
+		"chat:read",
+		"chat:edit",
+		"channel:moderate",
+		"whispers:edit",
+	}
+
+	return &Twitch{
+		Scopes:       scopes,
+		ClientID:     clientID,
+		RedirectURI:  DEFAULT_REDIRECT_URI,
+		ResponseType: "token",
+		State:        "c3ab8aa609ea11e793ae92361f002671",
+	}
+}
+
 func (t *Twitch) Connect() (string, error) {
-	url, err := t.GetURL()
+	url, err := t.getURL()
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +64,7 @@ func (t *Twitch) Connect() (string, error) {
 	return server.NewServer(":8080").Run("/twitch/oauth")
 }
 
-func (t *Twitch) GetURL() (string, error) {
+func (t *Twitch) getURL() (string, error) {
 	u, err := url.Parse(BASE_TWITCH_URL)
 	if err != nil {
 		return "", err
@@ -54,7 +75,7 @@ func (t *Twitch) GetURL() (string, error) {
 	q.Set("response_type", t.ResponseType)
 	q.Set("client_id", t.ClientID)
 	q.Set("redirect_uri", t.RedirectURI)
-	q.Set("scope", strings.Join(t.Scope, " "))
+	q.Set("scope", strings.Join(t.Scopes, " "))
 	q.Set("state", t.State)
 
 	u.RawQuery = q.Encode()

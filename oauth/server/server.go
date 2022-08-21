@@ -22,7 +22,7 @@ func NewServer(port string) *Server {
 func (s *Server) Run(path string) (string, error) {
 	token := ""
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		buf, err := os.ReadFile("./server/index.html")
+		buf, err := os.ReadFile("./oauth/server/index.html")
 
 		if err != nil {
 			fmt.Println(err)

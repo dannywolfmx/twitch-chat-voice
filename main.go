@@ -16,6 +16,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"github.com/dannywolfmx/go-tts/tts"
+	"github.com/dannywolfmx/twitch-chat-voice/oauth"
 	"github.com/dannywolfmx/twitch-chat-voice/ui/screens"
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/joho/godotenv"
@@ -43,13 +44,19 @@ type MyPlayer struct {
 	*tts.TTS
 }
 
+var bearerToken string
+
+var auth *oauth.Twitch
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
 
-	bearer := os.Getenv(BEARER)
+	//bearer = os.Getenv(BEARER)
 	client_id := os.Getenv(CLIENT_ID)
+
+	auth = oauth.NewTwitchDefault(client_id)
 
 	client = twitch.NewAnonymousClient()
 	player = tts.NewTTS("es")
@@ -63,7 +70,7 @@ func main() {
 	player.OnPlayerStart(func(message string) {
 		userName := strings.Split(message, ":")
 		if len(userName) == 2 {
-			avatar, err := getTwitchUserInfo(bearer, client_id, userName[0])
+			avatar, err := getTwitchUserInfo(bearerToken, client_id, userName[0])
 			if err == nil {
 				img = avatar
 			}
@@ -102,6 +109,9 @@ type SingleData struct {
 }
 
 func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {
+	if bearer == "" {
+		return nil, errors.New("Empty bearer token")
+	}
 	url := fmt.Sprintf("https://api.twitch.tv/helix/users?login=%s", username)
 
 	client := http.Client{}
@@ -156,6 +166,7 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 	var ops op.Ops
 	next := make(chan struct{})
 	twitchChannel := make(chan string)
+	connectTwitch := make(chan struct{})
 
 	go func() {
 		for range next {
@@ -170,7 +181,18 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 		}
 	}()
 
-	home := screens.NewHomeScreen(next, twitchChannel)
+	go func() {
+		for range connectTwitch {
+			fmt.Println("Connecting")
+			var err error
+			bearerToken, err = auth.Connect()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}()
+
+	home := screens.NewHomeScreen(next, connectTwitch, twitchChannel)
 
 	for {
 		select {

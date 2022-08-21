@@ -19,19 +19,21 @@ type Home struct {
 	Editor        *widget.Editor
 	TwitchChannel chan string
 	Next          chan struct{}
+	ConnectTwitch chan struct{}
 	Img           image.Image
 	*component.ComponentTheme
 }
 
 var emptyImage = image.NewNRGBA(image.Rect(0, 0, 128, 128))
 
-func NewHomeScreen(next chan struct{}, twitchChannel chan string) *Home {
+func NewHomeScreen(next, connect chan struct{}, twitchChannel chan string) *Home {
 	return &Home{
 		Texto:          "",
 		TwitchChannel:  twitchChannel,
 		Next:           next,
 		Img:            emptyImage,
 		ComponentTheme: component.DefaultTheme,
+		ConnectTwitch:  connect,
 	}
 
 }
@@ -49,14 +51,23 @@ func (m *Home) Render(gtx Context) Dimensions {
 		component.Container(m.textInput),
 		component.SpacerVertical(16),
 		component.Container(m.buttonSkip),
+		component.SpacerVertical(16),
+		component.Container(m.buttonConnectTwitch),
 	}
 
 	return flex.Layout(gtx, elements...)
 }
 
+func (m *Home) buttonConnectTwitch(gtx Context) Dimensions {
+	for component.ButtonTwitch.Clicked() {
+		m.ConnectTwitch <- struct{}{}
+	}
+	return material.Button(m.Theme, component.ButtonTwitch, "Connect to twitch").Layout(gtx)
+}
+
 func (m *Home) buttonSkip(gtx Context) Dimensions {
 	for component.Button.Clicked() {
-		m.Next <- struct{}{}
+		m.ConnectTwitch <- struct{}{}
 	}
 	return material.Button(m.Theme, component.Button, "Skip").Layout(gtx)
 }
