@@ -12,12 +12,11 @@ import (
 	"strings"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"github.com/dannywolfmx/go-tts/tts"
-	"github.com/dannywolfmx/twitch-chat-voice/ui"
+	"github.com/dannywolfmx/twitch-chat-voice/ui/screens"
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/joho/godotenv"
 )
@@ -76,6 +75,7 @@ func main() {
 	go func() {
 		w := app.NewWindow(
 			app.Title("Twitch text to voice"),
+			app.Size(356, 800),
 		)
 		run(w, player, client)
 	}()
@@ -153,22 +153,13 @@ func stopProgram() {
 }
 
 func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
-
-	theme := ui.NewTheme(gofont.Collection())
-	theme.Bg = ui.NewColor(0x191E38FF)
-	theme.Fg = ui.NewColor(0x2F365FFF)
-	theme.ContrastBg = ui.NewColor(0x5661B3FF)
-	theme.TextColor = ui.NewColor(0xE6E8FFFF)
-
-	next := make(chan bool)
+	var ops op.Ops
+	next := make(chan struct{})
 	twitchChannel := make(chan string)
 
 	go func() {
-		for {
-			select {
-			case <-next:
-				player.Next()
-			}
+		for range next {
+			player.Next()
 		}
 	}()
 
@@ -179,14 +170,7 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 		}
 	}()
 
-	var ops op.Ops
-	main := ui.Main{
-		Theme:         theme,
-		Texto:         texto,
-		TwitchChannel: twitchChannel,
-		Next:          next,
-		Img:           img,
-	}
+	home := screens.NewHomeScreen(next, twitchChannel)
 
 	for {
 		select {
@@ -197,21 +181,17 @@ func run(w *app.Window, player *tts.TTS, client *twitch.Client) error {
 				quit <- os.Interrupt
 				return e.Err
 			case system.FrameEvent:
-				Layout(theme, &ops, e, main)
+				gtx := layout.NewContext(&ops, e)
+
+				screens.Show(gtx, home)
+
+				e.Frame(gtx.Ops)
 			}
 
 		case <-UpdateUI:
-			main.Img = img
-			main.Texto = texto
+			home.Img = img
+			home.Texto = texto
 			w.Invalidate()
 		}
 	}
-}
-
-func Layout(theme *ui.Theme, ops *op.Ops, e system.FrameEvent, main ui.Main) {
-	gtx := layout.NewContext(ops, e)
-
-	main.Layout(gtx)
-
-	e.Frame(gtx.Ops)
 }

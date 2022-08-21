@@ -1,4 +1,4 @@
-package ui
+package component
 
 import (
 	"image/color"
