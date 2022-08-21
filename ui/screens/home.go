@@ -11,6 +11,7 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"github.com/dannywolfmx/twitch-chat-voice/ui/component"
+	"golang.org/x/image/draw"
 )
 
 type Home struct {
@@ -100,19 +101,22 @@ func (m *Home) TwitchIcon(gtx Context) Dimensions {
 		m.Img = emptyImage
 	}
 	rec := image.Rect(0, 0, 128, 128)
-	rec.Min = image.ZP
-	return layout.Stack{Alignment: layout.Center}.Layout(gtx,
-		layout.Expanded(func(gtx Context) Dimensions {
-			defer clip.Ellipse{Max: rec.Max, Min: rec.Min}.Push(gtx.Ops).Pop()
-			imageOpt := paint.NewImageOp(m.Img)
-			imageOpt.Add(gtx.Ops)
 
+	dst := image.NewNRGBA(image.Rect(0, 0, 128, 128))
+	draw.NearestNeighbor.Scale(dst, dst.Rect, m.Img, m.Img.Bounds(), draw.Over, nil)
+
+	return layout.Stack{Alignment: layout.Center}.Layout(gtx,
+		layout.Stacked(func(gtx Context) Dimensions {
+			defer clip.Ellipse{Max: rec.Max, Min: rec.Min}.Push(gtx.Ops).Pop()
+			imageOpt := paint.NewImageOp(dst)
+			imageOpt.Add(gtx.Ops)
 			paint.PaintOp{}.Add(gtx.Ops)
 
 			return Dimensions{Size: rec.Max}
 		}),
 		layout.Stacked(func(gtx Context) Dimensions {
 			defer clip.Ellipse{Max: rec.Max, Min: rec.Min}.Push(gtx.Ops).Pop()
+
 			paint.Fill(gtx.Ops, component.NewColor(0xFFFFFF09))
 			return Dimensions{Size: rec.Max}
 		}),
