@@ -12,13 +12,13 @@ This repo is using GIO as gui framework, to work around it you need to install s
 
 
 //Normal linux
-go run main.go
+go run -o bin/linux main.go
 
 //without X11
-go run --tags nox11 main.go
+go run --tags nox11 -o bin/linux-without-x11 main.go
 
 //without Wayland
-go run --tags nowayland main.go
+go run --tags nowayland -o bin/linux-without-wayland main.go
 
 
 //Compile from linux to windows
@@ -28,8 +28,8 @@ GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o bin/windows-amd64
 
 
 //64
-GOOS=darwin GOARCH=amd64 go build -o bin/darwin-64 app.go
+GOOS=darwin GOARCH=amd64 go build -o bin/darwin-64 main.go
 
 
 //32
-GOOS=darwin GOARCH=386 go build -o bin/darwin-32 app.go
+GOOS=darwin GOARCH=386 go build -o bin/darwin-32 main.go
