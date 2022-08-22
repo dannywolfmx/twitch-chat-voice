@@ -69,7 +69,7 @@ func main() {
 
 	player.OnPlayerStart(func(message string) {
 		userName := strings.Split(message, ":")
-		if len(userName) == 2 {
+		if len(userName) > 1 {
 			avatar, err := getTwitchUserInfo(bearerToken, client_id, userName[0])
 			if err == nil {
 				img = avatar
