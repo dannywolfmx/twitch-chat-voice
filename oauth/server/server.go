@@ -19,11 +19,15 @@ func NewServer(port string) *Server {
 			Addr: port,
 		},
 	}
+
 }
 
 func (s *Server) Run(path string) (string, error) {
 	token := ""
-	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+
+	//Refresh the mux in every new Run
+	mux := http.NewServeMux()
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		buf, err := os.ReadFile("./oauth/server/index.html")
 
 		if err != nil {
@@ -35,7 +39,7 @@ func (s *Server) Run(path string) (string, error) {
 		w.Write(buf)
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		token = r.URL.Query().Get("token")
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, "Servidor servido")
@@ -44,6 +48,8 @@ func (s *Server) Run(path string) (string, error) {
 			s.Shutdown(context.TODO())
 		}()
 	})
+
+	s.Handler = mux
 
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
 		return "", err

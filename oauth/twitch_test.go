@@ -24,7 +24,7 @@ var Scopes = []string{
 
 func TestGetURL(t *testing.T) {
 	testTwitchStruct := NewTwitch(CLIENT_ID, REDIRECT, RESPONSE_TYPE, State, Scopes...)
-	res, err := testTwitchStruct.GetURL()
+	res, err := testTwitchStruct.getURL()
 
 	if err != nil {
 		t.Fatal(err)
