@@ -2,12 +2,13 @@ package server
 
 import (
 	"context"
-	"fmt"
-	"io"
+	_ "embed"
 	"net/http"
-	"os"
 	"time"
 )
+
+//go:embed index.html
+var page []byte
 
 type Server struct {
 	*http.Server
@@ -28,21 +29,12 @@ func (s *Server) Run(path string) (string, error) {
 	//Refresh the mux in every new Run
 	mux := http.NewServeMux()
 	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		buf, err := os.ReadFile("./oauth/server/index.html")
-
-		if err != nil {
-			fmt.Println(err)
-			s.Shutdown(context.TODO())
-			return
-		}
-
-		w.Write(buf)
+		w.Write(page)
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		token = r.URL.Query().Get("token")
 		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "Servidor servido")
 		go func() {
 			time.Sleep(time.Second * 4)
 			s.Shutdown(context.TODO())

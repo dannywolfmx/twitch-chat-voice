@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -48,13 +49,19 @@ var bearerToken string
 
 var auth *oauth.Twitch
 
+//go:embed  .env
+var envFile string
+
 func main() {
-	if err := godotenv.Load(); err != nil {
+	envVars, err := godotenv.Unmarshal(envFile)
+	if err != nil {
 		panic(err)
 	}
 
-	//bearer = os.Getenv(BEARER)
-	client_id := os.Getenv(CLIENT_ID)
+	client_id, ok := envVars[CLIENT_ID]
+	if !ok {
+		panic(err)
+	}
 
 	auth = oauth.NewTwitchDefault(client_id)
 
