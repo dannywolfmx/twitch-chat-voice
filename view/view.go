@@ -1,7 +1,6 @@
 package view
 
 import (
-	"fmt"
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -26,6 +25,7 @@ type viewFyne struct {
 func NewView() *viewFyne {
 	gui := app.New()
 	gui.Settings().SetTheme(&CustomTheme{})
+
 	w := gui.NewWindow("Twitch app")
 
 	w.SetContent(contentLayout())
@@ -44,12 +44,9 @@ func (v *viewFyne) Quit() {
 
 func contentLayout() *fyne.Container {
 
-	bo := custom.NewCustomButton(theme.HomeIcon(), func() {
-		fmt.Println("Prueba")
-	})
-	bo.Resize(fyne.NewSize(200, 200))
-	a := container.NewWithoutLayout(
-		bo,
+	a := container.NewVBox(
+		layout.NewSpacer(),
+		playerButtonsLayout(),
 	)
 	return a
 }
@@ -63,23 +60,18 @@ func toolbarLayout() *widget.Toolbar {
 	)
 }
 
+// ref: https://stackoverflow.com/questions/60560906/how-make-expanded-and-stretched-layout-box-with-fyne
 func playerButtonsLayout() *fyne.Container {
-	b := widget.NewButtonWithIcon("", theme.HomeIcon(), nil)
-	b.Resize(fyne.NewSize(200, 200))
+	b := custom.NewCustomButton(theme.MediaStopIcon(), nil)
 
-	b2 := widget.NewButtonWithIcon("", theme.MediaPlayIcon(), nil)
-	n := container.New(
-		layout.NewMaxLayout(),
+	b2 := custom.NewCustomButton(theme.MediaFastForwardIcon(), nil)
+
+	//b := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), nil)
+	//b2 := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), nil)
+
+	return fyne.NewContainerWithLayout(
+		layout.NewAdaptiveGridLayout(2),
 		b,
-	)
-
-	n2 := container.New(
-		layout.NewMaxLayout(),
 		b2,
-	)
-
-	return container.New(
-		layout.NewHBoxLayout(),
-		n, n2,
 	)
 }

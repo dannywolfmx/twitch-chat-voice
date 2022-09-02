@@ -51,7 +51,14 @@ func (c *CustomButton) CreateRenderer() fyne.WidgetRenderer {
 
 func (c *CustomButton) Tapped(p *fyne.PointEvent) {
 	c.tapAnimation()
-	c.OnTapped()
+	if c.OnTapped != nil {
+		c.OnTapped()
+	}
+}
+
+func (c *CustomButton) MinSize() fyne.Size {
+	c.ExtendBaseWidget(c)
+	return c.BaseWidget.MinSize()
 }
 
 func (b *CustomButton) tapAnimation() {
@@ -67,28 +74,39 @@ type customButtonRender struct {
 	button     *CustomButton
 	background *canvas.Rectangle
 	objects    []fyne.CanvasObject
+	size       fyne.Size
 }
 
 func (c *customButtonRender) Layout(size fyne.Size) {
 	c.background.Move(c.icon.Position())
 	c.background.Resize(size)
 	c.icon.Resize(size)
+	c.size = size
+	//c.button.Resize(size)
 }
 
 func (c *customButtonRender) MinSize() fyne.Size {
-	return c.icon.MinSize()
+	height := c.button.Size().Height
+	size := theme.IconInlineSize()
+
+	if c.size.Width > 200 {
+		height = 200
+	} else {
+		height = c.size.Width
+	}
+
+	return fyne.NewSize(size, height)
 }
 
 func (c *customButtonRender) Refresh() {
 	c.icon.Refresh()
-	c.background.Position()
+	c.background.Refresh()
 	c.Layout(c.button.Size())
 }
 
 func (c *customButtonRender) Objects() []fyne.CanvasObject {
 	return c.objects
 }
-
 func (c *customButtonRender) Destroy() {
 }
 
