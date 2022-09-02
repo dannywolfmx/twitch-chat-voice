@@ -1,15 +1,16 @@
 package view
 
 import (
+	"fmt"
 	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/dannywolfmx/twitch-chat-voice/view/custom"
 )
 
 type View interface {
@@ -24,6 +25,7 @@ type viewFyne struct {
 
 func NewView() *viewFyne {
 	gui := app.New()
+	gui.Settings().SetTheme(&CustomTheme{})
 	w := gui.NewWindow("Twitch app")
 
 	w.SetContent(contentLayout())
@@ -41,22 +43,43 @@ func (v *viewFyne) Quit() {
 }
 
 func contentLayout() *fyne.Container {
-	return container.NewVBox(
-		toolbarLayout(),
-		layout.NewSpacer(),
-		container.NewMax(
-			canvas.NewText("Prueba", theme.TextColor()),
-		),
-		layout.NewSpacer(),
-		widget.NewIcon(theme.MediaPlayIcon()),
+
+	bo := custom.NewCustomButton(theme.HomeIcon(), func() {
+		fmt.Println("Prueba")
+	})
+	bo.Resize(fyne.NewSize(200, 200))
+	a := container.NewWithoutLayout(
+		bo,
 	)
+	return a
 }
 
 func toolbarLayout() *widget.Toolbar {
 	return widget.NewToolbar(
 		widget.NewToolbarSpacer(),
 		widget.NewToolbarAction(theme.MenuIcon(), func() {
-			log.Println("Clicked")
+			log.Println("Clicked s")
 		}),
+	)
+}
+
+func playerButtonsLayout() *fyne.Container {
+	b := widget.NewButtonWithIcon("", theme.HomeIcon(), nil)
+	b.Resize(fyne.NewSize(200, 200))
+
+	b2 := widget.NewButtonWithIcon("", theme.MediaPlayIcon(), nil)
+	n := container.New(
+		layout.NewMaxLayout(),
+		b,
+	)
+
+	n2 := container.New(
+		layout.NewMaxLayout(),
+		b2,
+	)
+
+	return container.New(
+		layout.NewHBoxLayout(),
+		n, n2,
 	)
 }
