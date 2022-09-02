@@ -67,7 +67,7 @@ func (m *Home) buttonConnectTwitch(gtx Context) Dimensions {
 
 func (m *Home) buttonSkip(gtx Context) Dimensions {
 	for component.Button.Clicked() {
-		m.ConnectTwitch <- struct{}{}
+		m.Next <- struct{}{}
 	}
 	return material.Button(m.Theme, component.Button, "Skip").Layout(gtx)
 }
