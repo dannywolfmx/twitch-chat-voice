@@ -9,7 +9,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/dannywolfmx/twitch-chat-voice/view/custom"
 )
 
 type View interface {
@@ -62,13 +61,15 @@ func toolbarLayout() *widget.Toolbar {
 
 // ref: https://stackoverflow.com/questions/60560906/how-make-expanded-and-stretched-layout-box-with-fyne
 func playerButtonsLayout() *fyne.Container {
-	b := custom.NewCustomButton(theme.MediaStopIcon(), nil)
+	//b := custom.NewCustomButton(theme.MediaStopIcon(), nil)
 
-	b2 := custom.NewCustomButton(theme.MediaFastForwardIcon(), nil)
+	//b2 := custom.NewCustomButton(theme.MediaFastForwardIcon(), nil)
+	//b2.Resize(fyne.NewSize(200, 200))
 
-	//b := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), nil)
-	//b2 := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), nil)
+	b := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), nil)
+	b2 := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), nil)
 
+	container.NewGridWithColumns(cols int, objects ...fyne.CanvasObject)
 	return fyne.NewContainerWithLayout(
 		layout.NewAdaptiveGridLayout(2),
 		b,
