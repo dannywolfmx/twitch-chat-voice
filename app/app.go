@@ -60,7 +60,19 @@ func (a *MainApp) Run() error {
 		}
 	}()
 
-	a.View = view.NewView(config)
+	onConfigTap := func() {
+		a.View.ChangeScreen(view.CONFIG_SCREEN)
+	}
+
+	onNextTap := func() {
+		fmt.Println("hola")
+	}
+
+	onStopTap := func() {
+		fmt.Println("Stop")
+	}
+
+	a.View = view.NewView(onConfigTap, onStopTap, onNextTap)
 
 	a.View.ShowAndRun()
 
