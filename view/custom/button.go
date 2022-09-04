@@ -89,8 +89,8 @@ func (c *customButtonRender) MinSize() fyne.Size {
 	height := c.button.Size().Height
 	size := theme.IconInlineSize()
 
-	if c.size.Width > 200 {
-		height = 200
+	if c.size.Width > 128 {
+		height = 128
 	} else {
 		height = c.size.Width
 	}

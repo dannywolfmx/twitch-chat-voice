@@ -16,6 +16,10 @@ import (
 	"github.com/gempir/go-twitch-irc/v3"
 )
 
+var (
+	config = make(chan struct{})
+)
+
 type MainApp struct {
 	Auth       oauth.Oauth
 	Player     *tts.TTS
@@ -56,7 +60,7 @@ func (a *MainApp) Run() error {
 		}
 	}()
 
-	a.View = view.NewView()
+	a.View = view.NewView(config)
 
 	a.View.ShowAndRun()
 

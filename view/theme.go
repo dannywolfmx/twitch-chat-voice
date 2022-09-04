@@ -1,7 +1,6 @@
 package view
 
 import (
-	"fmt"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -30,12 +29,14 @@ func (c *CustomTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant)
 }
 
 func (c *CustomTheme) Font(textStyle fyne.TextStyle) fyne.Resource {
-	fmt.Println(textStyle)
 	return theme.DefaultTheme().Font(textStyle)
 }
 
 func (c *CustomTheme) Icon(iconName fyne.ThemeIconName) fyne.Resource {
+	return theme.DefaultTheme().Icon(iconName)
+}
 
+func (c *CustomTheme) Padding(iconName fyne.ThemeIconName) fyne.Resource {
 	return theme.DefaultTheme().Icon(iconName)
 }
 
