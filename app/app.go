@@ -29,29 +29,26 @@ type MainApp struct {
 }
 
 func (a *MainApp) events() {
+	go func() {
+		a.Client.Connect()
+	}()
+
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		m := fmt.Sprintf("%s: %s \n", message.User.Name, message.Message)
+		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
 		a.Player.Add(m)
 	})
 
 	a.Player.OnPlayerStart(func(message string) {
-		userName := strings.Split(message, ":")
-		if len(userName) > 1 {
+		text := strings.Split(message, ":")
+		if len(text) > 1 {
+			a.View.SetChatMessage(text[0], text[1])
 		}
 	})
 }
 
 func (a *MainApp) Run() error {
 	a.events()
-	twitchChannel := make(chan string)
 	//connectTwitch := make(chan struct{})
-
-	go func() {
-		for t := range twitchChannel {
-			fmt.Println(t)
-			a.Client.Join(t)
-		}
-	}()
 
 	onConfigTap := func() {
 		a.View.ChangeScreen(view.CONFIG_SCREEN)
@@ -65,11 +62,17 @@ func (a *MainApp) Run() error {
 		fmt.Println("Stop")
 	}
 
+	onUserNamechange := func(username string) {
+		fmt.Println(username)
+		a.Client.Join(username)
+	}
+
 	config := view.ConfigView{
-		OnConfigTap:   onConfigTap,
-		OnStopTap:     onStopTap,
-		OnNextTap:     onNextTap,
-		DefaultScreen: view.CONFIG_SCREEN,
+		OnConfigTap:      onConfigTap,
+		OnStopTap:        onStopTap,
+		OnNextTap:        onNextTap,
+		DefaultScreen:    view.CONFIG_SCREEN,
+		OnUserNameChange: onUserNamechange,
 	}
 
 	a.View = view.NewView(config)

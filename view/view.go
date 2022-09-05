@@ -17,6 +17,7 @@ const (
 type View interface {
 	ShowAndRun()
 	ChangeScreen(screen int)
+	SetChatMessage(sender, message string)
 	Quit()
 }
 
@@ -24,7 +25,8 @@ type View interface {
 type viewFyne struct {
 	mainApp fyne.App
 	fyne.Window
-	changeScreen func(screen int)
+	changeScreen  func(screen int)
+	currentScreen int
 }
 
 func NewView(config ConfigView) *viewFyne {
@@ -35,6 +37,17 @@ func NewView(config ConfigView) *viewFyne {
 	w := gui.NewWindow("Twitch app")
 	w.Resize(fyne.NewSize(400, 736))
 
+	if config.DefaultScreen == NONE_SCREEN {
+		config.DefaultScreen = HOME_SCREEN
+	}
+
+	v := &viewFyne{
+		Window:        w,
+		mainApp:       gui,
+		changeScreen:  SetScreens(w, route),
+		currentScreen: config.DefaultScreen,
+	}
+
 	route[HOME_SCREEN] = &screens.Home{
 		OnConfigTap: config.OnConfigTap,
 		OnStopTap:   config.OnStopTap,
@@ -43,21 +56,38 @@ func NewView(config ConfigView) *viewFyne {
 
 	route[CONFIG_SCREEN] = &screens.Config{
 		OnBackButton: func() {
-			w.SetContent(route[HOME_SCREEN].Content())
+			v.ChangeScreen(HOME_SCREEN)
 		},
+		OnUserNameChange: config.OnUserNameChange,
 	}
 
-	if config.DefaultScreen == NONE_SCREEN {
-		config.DefaultScreen = HOME_SCREEN
+	v.ChangeScreen(config.DefaultScreen)
+
+	return v
+
+}
+
+func (v *viewFyne) SetChatMessage(sender, message string) {
+	if v.currentScreen != HOME_SCREEN {
+		return
+	}
+	s, ok := route[HOME_SCREEN].(*screens.Home)
+
+	if !ok {
+		//error on cast
+		return
 	}
 
-	w.SetContent(route[config.DefaultScreen].Content())
+	s.SetChatMessage(sender, message)
+}
 
-	return &viewFyne{
-		Window:       w,
-		mainApp:      gui,
-		changeScreen: SetScreens(w, route),
-	}
+func (v *viewFyne) ChangeScreen(screen int) {
+	v.currentScreen = screen
+	v.changeScreen(screen)
+}
+
+func (v *viewFyne) Quit() {
+	v.mainApp.Quit()
 }
 
 func SetScreens(window fyne.Window, screens map[int]screens.Screen) func(screen int) {
@@ -69,12 +99,4 @@ func SetScreens(window fyne.Window, screens map[int]screens.Screen) func(screen 
 		}
 		window.SetContent(s.Content())
 	}
-}
-
-func (v *viewFyne) ChangeScreen(screen int) {
-	v.changeScreen(screen)
-}
-
-func (v *viewFyne) Quit() {
-	v.mainApp.Quit()
 }

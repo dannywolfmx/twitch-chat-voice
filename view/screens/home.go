@@ -13,23 +13,38 @@ import (
 )
 
 var (
-	//7DD3FC
-	usernameColor = color.NRGBA{R: 0x7D, G: 0xD3, B: 0xFC, A: 0xFF}
-	textColor     = color.NRGBA{R: 0xEF, G: 0xF6, B: 0xFF, A: 0xFF}
+	senderColor = color.NRGBA{R: 0x7D, G: 0xD3, B: 0xFC, A: 0xFF}
+	textColor   = color.NRGBA{R: 0xEF, G: 0xF6, B: 0xFF, A: 0xFF}
+
+	sender  *canvas.Text
+	message *canvas.Text
 )
 
 type Home struct {
 	OnConfigTap, OnNextTap, OnStopTap func()
+	Message                           chan struct {
+		Sender, Message string
+	}
 }
 
 func (h *Home) Content() fyne.CanvasObject {
+	sender = canvas.NewText("", senderColor)
+	message = canvas.NewText("", textColor)
 
 	return container.NewVBox(
 		components.ToolbarLayout(nil, h.OnConfigTap),
-		chatPart(),
+		chatPart(sender, message),
 		layout.NewSpacer(),
 		playerButtonsLayout(h.OnStopTap, h.OnNextTap),
 	)
+}
+
+func (h *Home) SetChatMessage(s, m string) {
+	sender.Text = s
+	message.Text = m
+
+	sender.Refresh()
+	message.Refresh()
 }
 
 // ref: https://stackoverflow.com/questions/60560906/how-make-expanded-and-stretched-layout-box-with-fyne
@@ -47,21 +62,20 @@ func playerButtonsLayout(OnStopTap, OnNextTap func()) *fyne.Container {
 	)
 }
 
-func chatPart() *fyne.Container {
+func chatPart(sender, message *canvas.Text) *fyne.Container {
 	//EFF6FF
-
-	username := canvas.NewText("dannywolfmx2", usernameColor)
-	username.TextSize = 24
-	username.TextStyle.Bold = true
+	sender.Color = senderColor
+	sender.TextSize = 24
+	sender.TextStyle.Bold = true
 
 	//Text from the user
-	text := canvas.NewText("Prueba", textColor)
-	text.TextSize = 20
-	text.TextStyle.Bold = true
+	message.Color = textColor
+	message.TextSize = 20
+	message.TextStyle.Bold = true
 
 	spacer := canvas.NewRectangle(color.Transparent)
 
-	left := canvas.NewText("    ", usernameColor)
+	left := canvas.NewText("    ", senderColor)
 	left.TextSize = 24
 	return fyne.NewContainerWithLayout(
 		layout.NewAdaptiveGridLayout(1),
@@ -71,12 +85,12 @@ func chatPart() *fyne.Container {
 		fyne.NewContainerWithLayout(
 			layout.NewBorderLayout(spacer, nil, left, nil),
 			left,
-			username,
+			sender,
 		),
 		fyne.NewContainerWithLayout(
 			layout.NewBorderLayout(spacer, nil, left, nil),
 			left,
-			text,
+			message,
 		),
 	)
 }
