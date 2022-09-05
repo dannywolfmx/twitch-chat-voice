@@ -8,8 +8,8 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
-	"fyne.io/fyne/v2/widget"
 	"github.com/dannywolfmx/twitch-chat-voice/view/custom"
+	"github.com/dannywolfmx/twitch-chat-voice/view/screens/components"
 )
 
 var (
@@ -24,19 +24,11 @@ type Home struct {
 
 func (h *Home) Content() fyne.CanvasObject {
 
-	a := container.NewVBox(
-		toolbarLayout(h.OnConfigTap),
+	return container.NewVBox(
+		components.ToolbarLayout(nil, h.OnConfigTap),
 		chatPart(),
 		layout.NewSpacer(),
 		playerButtonsLayout(h.OnStopTap, h.OnNextTap),
-	)
-	return a
-}
-
-func toolbarLayout(onConfigTap func()) *widget.Toolbar {
-	return widget.NewToolbar(
-		widget.NewToolbarSpacer(),
-		widget.NewToolbarAction(theme.MenuIcon(), onConfigTap),
 	)
 }
 

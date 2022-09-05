@@ -2,7 +2,9 @@ package screens
 
 import (
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/widget"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"github.com/dannywolfmx/twitch-chat-voice/view/screens/components"
 )
 
 type Config struct {
@@ -10,5 +12,8 @@ type Config struct {
 }
 
 func (c *Config) Content() fyne.CanvasObject {
-	return widget.NewButton("Hola", c.OnBackButton)
+	return container.NewVBox(
+		components.ToolbarLayout(c.OnBackButton, nil),
+		layout.NewSpacer(),
+	)
 }
