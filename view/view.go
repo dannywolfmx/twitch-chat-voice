@@ -9,7 +9,8 @@ import (
 var route = make(map[int]screens.Screen, 0)
 
 const (
-	HOME_SCREEN = iota + 1
+	NONE_SCREEN = iota
+	HOME_SCREEN
 	CONFIG_SCREEN
 )
 
@@ -26,7 +27,7 @@ type viewFyne struct {
 	changeScreen func(screen int)
 }
 
-func NewView(OnConfigTap, OnStopTap, OnNextTap func()) *viewFyne {
+func NewView(config ConfigView) *viewFyne {
 
 	gui := app.New()
 	gui.Settings().SetTheme(&CustomTheme{})
@@ -35,9 +36,9 @@ func NewView(OnConfigTap, OnStopTap, OnNextTap func()) *viewFyne {
 	w.Resize(fyne.NewSize(400, 736))
 
 	route[HOME_SCREEN] = &screens.Home{
-		OnConfigTap: OnConfigTap,
-		OnStopTap:   OnStopTap,
-		OnNextTap:   OnNextTap,
+		OnConfigTap: config.OnConfigTap,
+		OnStopTap:   config.OnStopTap,
+		OnNextTap:   config.OnNextTap,
 	}
 
 	route[CONFIG_SCREEN] = &screens.Config{
@@ -46,7 +47,11 @@ func NewView(OnConfigTap, OnStopTap, OnNextTap func()) *viewFyne {
 		},
 	}
 
-	w.SetContent(route[HOME_SCREEN].Content())
+	if config.DefaultScreen == NONE_SCREEN {
+		config.DefaultScreen = HOME_SCREEN
+	}
+
+	w.SetContent(route[config.DefaultScreen].Content())
 
 	return &viewFyne{
 		Window:       w,

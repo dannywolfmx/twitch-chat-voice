@@ -43,15 +43,8 @@ func (a *MainApp) events() {
 
 func (a *MainApp) Run() error {
 	a.events()
-	next := make(chan struct{})
 	twitchChannel := make(chan string)
 	//connectTwitch := make(chan struct{})
-
-	go func() {
-		for range next {
-			a.Player.Next()
-		}
-	}()
 
 	go func() {
 		for t := range twitchChannel {
@@ -65,14 +58,21 @@ func (a *MainApp) Run() error {
 	}
 
 	onNextTap := func() {
-		fmt.Println("hola")
+		a.Player.Next()
 	}
 
 	onStopTap := func() {
 		fmt.Println("Stop")
 	}
 
-	a.View = view.NewView(onConfigTap, onStopTap, onNextTap)
+	config := view.ConfigView{
+		OnConfigTap:   onConfigTap,
+		OnStopTap:     onStopTap,
+		OnNextTap:     onNextTap,
+		DefaultScreen: view.CONFIG_SCREEN,
+	}
+
+	a.View = view.NewView(config)
 
 	a.View.ShowAndRun()
 
