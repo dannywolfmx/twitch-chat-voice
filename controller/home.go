@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/view/screens"
@@ -69,6 +70,7 @@ func (c *homeController) EventStop() {
 }
 
 func (c *homeController) GetMessage() (string, string) {
+	fmt.Println("Call")
 	return c.Sender, c.Message
 }
 
@@ -85,4 +87,11 @@ func (c *homeController) initScreen() {
 		GetMessage:  c.GetMessage,
 		OnConfigTap: c.EventConfigTap,
 	}
+
+	go func() {
+		time.Sleep(time.Second * 5)
+		c.Sender = "Sender"
+		c.Message = "Message"
+		c.screen.Update()
+	}()
 }

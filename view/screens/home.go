@@ -15,35 +15,32 @@ import (
 var (
 	senderColor = color.NRGBA{R: 0x7D, G: 0xD3, B: 0xFC, A: 0xFF}
 	textColor   = color.NRGBA{R: 0xEF, G: 0xF6, B: 0xFF, A: 0xFF}
-
-	sender  *canvas.Text
-	message *canvas.Text
 )
 
 type Home struct {
 	OnConfigTap, OnNextTap, OnStopTap func()
 
 	GetMessage func() (string, string)
+
+	sender, message *canvas.Text
 }
 
 func (h *Home) Content() fyne.CanvasObject {
-	sender = canvas.NewText("", senderColor)
-	message = canvas.NewText("", textColor)
+	sender, message := h.GetMessage()
 
+	h.sender = canvas.NewText(sender, senderColor)
+	h.message = canvas.NewText(message, textColor)
 	return container.NewVBox(
 		components.ToolbarLayout(nil, h.OnConfigTap),
-		chatPart(sender, message),
+		chatPart(h.sender, h.message),
 		layout.NewSpacer(),
 		playerButtonsLayout(h.OnStopTap, h.OnNextTap),
 	)
 }
-
-func (h *Home) SetChatMessage(s, m string) {
-	sender.Text = s
-	message.Text = m
-
-	sender.Refresh()
-	message.Refresh()
+func (h *Home) Update() {
+	h.sender.Text, h.message.Text = h.GetMessage()
+	h.sender.Refresh()
+	h.message.Refresh()
 }
 
 // ref: https://stackoverflow.com/questions/60560906/how-make-expanded-and-stretched-layout-box-with-fyne
