@@ -6,14 +6,12 @@ import (
 	"fmt"
 	"image"
 	"io"
-	"log"
 	"net/http"
-	"strings"
 
-	"github.com/dannywolfmx/go-tts/tts"
+	"github.com/dannywolfmx/twitch-chat-voice/controller"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
+	"github.com/dannywolfmx/twitch-chat-voice/route"
 	"github.com/dannywolfmx/twitch-chat-voice/view"
-	"github.com/gempir/go-twitch-irc/v3"
 )
 
 var (
@@ -22,61 +20,41 @@ var (
 
 type MainApp struct {
 	Auth       oauth.Oauth
-	Player     *tts.TTS
-	Client     *twitch.Client
 	BearerToke string
 	View       view.View
 }
 
 func (a *MainApp) events() {
-	go func() {
-		a.Client.Connect()
-	}()
-
-	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
-		a.Player.Add(m)
-	})
-
-	a.Player.OnPlayerStart(func(message string) {
-		text := strings.Split(message, ":")
-		if len(text) > 1 {
-			a.View.SetChatMessage(text[0], text[1])
-		}
-	})
 }
+
+const (
+	HOME_SCREEN   = "home"
+	CONFIG_SCREEN = "config"
+)
 
 func (a *MainApp) Run() error {
 	a.events()
-	//connectTwitch := make(chan struct{})
-
-	onConfigTap := func() {
-		a.View.ChangeScreen(view.CONFIG_SCREEN)
-	}
-
-	onNextTap := func() {
-		a.Player.Next()
-	}
-
-	onStopTap := func() {
-		fmt.Println("Stop")
-	}
-
-	onUserNamechange := func(username string) {
-		fmt.Println(username)
-		a.Client.Join(username)
-	}
-
 	config := view.ConfigView{
-		OnConfigTap:      onConfigTap,
-		OnStopTap:        onStopTap,
-		OnNextTap:        onNextTap,
-		DefaultScreen:    view.CONFIG_SCREEN,
-		OnUserNameChange: onUserNamechange,
+		WindowSize: view.Size{
+			Width:  400,
+			Height: 736,
+		},
+		Title: "Twitch App",
 	}
 
 	a.View = view.NewView(config)
 
+	route := route.NewRoute(a.View, true)
+
+	{
+		//Set home screen
+		home := controller.NewHomeController(func() error {
+			return route.Go(CONFIG_SCREEN)
+		})
+		route.Set(HOME_SCREEN, home)
+	}
+
+	route.Go(HOME_SCREEN)
 	a.View.ShowAndRun()
 
 	return nil
@@ -88,10 +66,9 @@ func (a *MainApp) Quit() {
 }
 
 func (a *MainApp) Stop() {
-	a.Client.Disconnect()
-	a.Player.Stop()
-	a.Player.CleanCache()
-	log.Println("Closed")
+	//	a.Client.Disconnect()
+	//	a.Player.Stop()
+	//	a.Player.CleanCache()
 }
 
 func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {

@@ -1,7 +1,10 @@
 package view
 
+import "fyne.io/fyne/v2"
+
 type ConfigView struct {
-	OnConfigTap, OnStopTap, OnNextTap func()
-	OnUserNameChange                  func(string)
-	DefaultScreen                     int
+	Title      string
+	WindowSize Size
 }
+
+type Size = fyne.Size

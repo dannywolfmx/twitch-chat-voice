@@ -22,9 +22,8 @@ var (
 
 type Home struct {
 	OnConfigTap, OnNextTap, OnStopTap func()
-	Message                           chan struct {
-		Sender, Message string
-	}
+
+	GetMessage func() (string, string)
 }
 
 func (h *Home) Content() fyne.CanvasObject {
