@@ -88,7 +88,6 @@ func (a *MainApp) Quit() {
 func (a *MainApp) Stop() {
 	a.Client.Disconnect()
 	a.Player.Stop()
-	a.Player.CleanCache()
 }
 
 func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {
