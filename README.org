@@ -6,6 +6,7 @@ This repo is using GIO as gui framework, to work around it you need to install s
 
 ** Normal linux
 
+
 #+begin_src sh
 go run -o bin/linux main.go
 #+end_src
