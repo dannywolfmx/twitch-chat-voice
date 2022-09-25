@@ -10,8 +10,6 @@ import (
 const BASE_TWITCH_URL = "https://id.twitch.tv/oauth2/authorize"
 const DEFAULT_REDIRECT_URI = "http://localhost:8080/twitch/oauth"
 
-var ()
-
 type Twitch struct {
 	ClientID     string
 	RedirectURI  string
@@ -20,17 +18,7 @@ type Twitch struct {
 	State        string
 }
 
-func NewTwitch(clientID, redirectURI, responseType, state string, scope ...string) *Twitch {
-	return &Twitch{
-		ClientID:     clientID,
-		RedirectURI:  redirectURI,
-		ResponseType: responseType,
-		Scopes:       scope,
-		State:        state,
-	}
-}
-
-func NewTwitchDefault(clientID string) *Twitch {
+func NewTwitchOAuth(clientID string) *Twitch {
 
 	scopes := []string{
 		"channel:manage:polls",

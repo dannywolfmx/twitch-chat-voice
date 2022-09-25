@@ -1,35 +1,54 @@
+* Run the program
 
-
-* Hacer un fork del tts para integrar oto como player
-* Crear un skip de mensaje
-* Eliminar los archivos que se generan de /audio
-
-
-GUI:
+* GUI:
 
 This repo is using GIO as gui framework, to work around it you need to install some [install some libraries](https://gioui.org/doc/install)
 
+** Normal linux
 
+*** Prerequisites
+[Fyne link](https://developer.fyne.io/started/#prerequisites)
 
-//Normal linux
+[Fyne cmd tool](https://github.com/fyne-io/fyne#installing)
+#+begin_src sh
+go install fyne.io/fyne/v2/cmd/fyne@latest
+#+end_src
+
+*** Android (need a Icon.png file)
+
+Create package for the application
+#+begin_src sh
+fyne package -os android -appID my.domain.appname
+
+#+end_src
+
+Install the app in the android phone or android emulator
+~note~ keep an eye on your phone to see if the debug need something
+#+begin_src
+fyne install -os android
+#+end_src
+
+It will generate a ~apk~ with the name of the root directory
+
+***   Linux desktop
+
+**** Normal
+#+begin_src sh
 go run -o bin/linux main.go
+#+end_src
 
-//without X11
+**** without X11
+#+begin_src sh
 go run --tags nox11 -o bin/linux-without-x11 main.go
+#+end_src
 
-//without Wayland
+**** without Wayland
+#+begin_src sh
 go run --tags nowayland -o bin/linux-without-wayland main.go
+#+end_src
 
 
-//Compile from linux to windows
+** Crosscompile from linux to windows
+#+begin_src sh
 GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o bin/windows-amd64.exe main.go
-
-//Compile from linux to MacOS
-
-
-//64
-GOOS=darwin GOARCH=amd64 go build -o bin/darwin-64 main.go
-
-
-//32
-GOOS=darwin GOARCH=386 go build -o bin/darwin-32 main.go
+#+end_src
