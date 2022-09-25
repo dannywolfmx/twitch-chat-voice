@@ -55,9 +55,9 @@ func main() {
 	}
 
 	a := &app.MainApp{
-		Auth: oauth.NewTwitchOAuth(client_id),
-		//	Client: twitch.NewAnonymousClient(),
-		//	Player: tts.NewTTS("es"),
+		Auth:   oauth.NewTwitchOAuth(client_id),
+		Client: twitch.NewAnonymousClient(),
+		Player: tts.NewTTS("es"),
 	}
 
 	signal.Notify(quit, os.Interrupt, os.Kill)

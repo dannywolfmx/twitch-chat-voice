@@ -8,10 +8,12 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/controller"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
 	"github.com/dannywolfmx/twitch-chat-voice/route"
 	"github.com/dannywolfmx/twitch-chat-voice/view"
+	"github.com/gempir/go-twitch-irc/v3"
 )
 
 var (
@@ -21,7 +23,9 @@ var (
 type MainApp struct {
 	Auth       oauth.Oauth
 	BearerToke string
-	View       view.View
+	view       view.View
+	Player     *tts.TTS
+	Client     *twitch.Client
 }
 
 func (a *MainApp) events() {
@@ -42,27 +46,33 @@ func (a *MainApp) Run() error {
 		Title: "Twitch App",
 	}
 
-	a.View = view.NewView(config)
+	a.view = view.NewView(config)
 
-	route := route.NewRoute(a.View, true)
+	route := route.NewRoute(a.view, true)
 
 	{
 		//Set home screen
-		home := controller.NewHomeController(func() error {
-			return route.Go(CONFIG_SCREEN)
-		})
+		home := controller.NewHomeController(func() error { return route.Go(CONFIG_SCREEN) },
+			a.Player,
+			a.Client,
+		)
 		route.Set(HOME_SCREEN, home)
+
+		config := controller.NewConfigController(func() { route.Go(HOME_SCREEN) })
+
+		route.Set(CONFIG_SCREEN, config)
+
 	}
 
 	route.Go(HOME_SCREEN)
-	a.View.ShowAndRun()
+	a.view.ShowAndRun()
 
 	return nil
 }
 
 func (a *MainApp) Quit() {
 	//Close the window at the end to keep the running function until it stop
-	a.View.Quit()
+	a.view.Quit()
 }
 
 func (a *MainApp) Stop() {

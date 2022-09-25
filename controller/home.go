@@ -10,10 +10,6 @@ import (
 	"github.com/gempir/go-twitch-irc/v3"
 )
 
-type Controller interface {
-	Screen() screens.Screen
-}
-
 type homeController struct {
 	screen          *screens.Home
 	Player          *tts.TTS
@@ -22,23 +18,32 @@ type homeController struct {
 	goConfigScreen  func() error
 }
 
-func NewHomeController(goConfigScreen func() error) *homeController {
+func NewHomeController(goConfigScreen func() error, p *tts.TTS, c *twitch.Client) *homeController {
 
-	h := &homeController{
+	controller := &homeController{
 		goConfigScreen: goConfigScreen,
+		Player:         p,
+		Client:         c,
 	}
 
-	h.initScreen()
+	controller.initScreen()
 
-	return h
+	controller.Connect()
+
+	return controller
 }
 
+// Connect to the player and the twitch
 func (c *homeController) Connect() {
 	go func() {
-		c.Client.Connect()
+		if err := c.Client.Connect(); err != nil {
+			fmt.Println("Error: ", err)
+		}
 	}()
 
+	c.Client.Join("dannywolfmx2")
 	c.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		fmt.Println("Prueba")
 		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
 		c.Player.Add(m)
 	})
@@ -52,7 +57,7 @@ func (c *homeController) Connect() {
 	})
 }
 
-//View events
+// View events
 //
 // Event that send data from the view to the controller
 func (c *homeController) EventConfigTap() {
@@ -70,16 +75,15 @@ func (c *homeController) EventStop() {
 }
 
 func (c *homeController) GetMessage() (string, string) {
-	fmt.Println("Call")
 	return c.Sender, c.Message
 }
 
-//Main is the main screen of the controller
+// Main is the main screen of the controller
 func (c *homeController) Screen() screens.Screen {
 	return c.screen
 }
 
-//initScreen will generate the screen of the view
+// initScreen will generate the screen of the view
 func (c *homeController) initScreen() {
 	c.screen = &screens.Home{
 		OnStopTap:   c.EventStop,

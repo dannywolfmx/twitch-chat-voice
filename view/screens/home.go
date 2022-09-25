@@ -25,18 +25,23 @@ type Home struct {
 	sender, message *canvas.Text
 }
 
+// Content is the main output to the user
 func (h *Home) Content() fyne.CanvasObject {
 	sender, message := h.GetMessage()
 
 	h.sender = canvas.NewText(sender, senderColor)
 	h.message = canvas.NewText(message, textColor)
+
 	return container.NewVBox(
 		components.ToolbarLayout(nil, h.OnConfigTap),
-		chatPart(h.sender, h.message),
+		chat(h.sender, h.message),
 		layout.NewSpacer(),
 		playerButtonsLayout(h.OnStopTap, h.OnNextTap),
 	)
 }
+
+// Update Generate a call to the screan to update the
+// sender and message text fields
 func (h *Home) Update() {
 	h.sender.Text, h.message.Text = h.GetMessage()
 	h.sender.Refresh()
@@ -58,7 +63,8 @@ func playerButtonsLayout(OnStopTap, OnNextTap func()) *fyne.Container {
 	)
 }
 
-func chatPart(sender, message *canvas.Text) *fyne.Container {
+// chat will fill the sender and message to the widget
+func chat(sender, message *canvas.Text) *fyne.Container {
 	//EFF6FF
 	sender.Color = senderColor
 	sender.TextSize = 24
