@@ -58,7 +58,6 @@ func (a *MainApp) Run() error {
 	}()
 
 	route := route.NewRoute(a.view, true)
-
 	{
 		//Set home screen
 		home := controller.NewHomeController(func() error { return route.Go(CONFIG_SCREEN) },
@@ -87,9 +86,9 @@ func (a *MainApp) Quit() {
 }
 
 func (a *MainApp) Stop() {
-	//	a.Client.Disconnect()
-	//	a.Player.Stop()
-	//	a.Player.CleanCache()
+	a.Client.Disconnect()
+	a.Player.Stop()
+	a.Player.CleanCache()
 }
 
 func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {
