@@ -4,18 +4,20 @@ import (
 	"fmt"
 
 	"github.com/dannywolfmx/twitch-chat-voice/view/screens"
+	"github.com/gempir/go-twitch-irc/v3"
 )
 
 type configController struct {
-	screen *screens.Config
-	//Client          *twitch.Client
+	screen          *screens.Config
+	Client          *twitch.Client
 	routeHomeScreen func()
 }
 
-func NewConfigController(routeHomeScreen func()) *configController {
+func NewConfigController(routeHomeScreen func(), c *twitch.Client) *configController {
 
 	controller := &configController{
 		routeHomeScreen: routeHomeScreen,
+		Client:          c,
 	}
 
 	controller.initScreen()
@@ -32,6 +34,7 @@ func (c *configController) Screen() screens.Screen {
 func (c *configController) initScreen() {
 	c.screen = &screens.Config{
 		OnUserNameChange: func(name string) {
+			c.Client.Join(name)
 			fmt.Println(name)
 		},
 		OnBackButton: c.routeHomeScreen,

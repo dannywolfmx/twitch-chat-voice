@@ -35,13 +35,6 @@ func NewHomeController(goConfigScreen func() error, p *tts.TTS, c *twitch.Client
 
 // Connect to the player and the twitch
 func (c *homeController) Connect() {
-	go func() {
-		if err := c.Client.Connect(); err != nil {
-			fmt.Println("Error: ", err)
-		}
-	}()
-
-	c.Client.Join("dannywolfmx2")
 	c.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		fmt.Println("Prueba")
 		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)

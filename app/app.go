@@ -48,6 +48,15 @@ func (a *MainApp) Run() error {
 
 	a.view = view.NewView(config)
 
+	go func() {
+		//Connect to the IRC twitch chat
+		// warning the connect function is thread blocking
+		// don't put function after this block
+		if err := a.Client.Connect(); err != nil {
+			fmt.Println("Error: ", err)
+		}
+	}()
+
 	route := route.NewRoute(a.view, true)
 
 	{
@@ -58,7 +67,9 @@ func (a *MainApp) Run() error {
 		)
 		route.Set(HOME_SCREEN, home)
 
-		config := controller.NewConfigController(func() { route.Go(HOME_SCREEN) })
+		config := controller.NewConfigController(func() { route.Go(HOME_SCREEN) },
+			a.Client,
+		)
 
 		route.Set(CONFIG_SCREEN, config)
 
