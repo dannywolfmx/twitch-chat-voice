@@ -1,20 +1,17 @@
-* Run the program
+* Libreries:
+- Fyne as GUI for windows, linux, android etc...
+- [[github.com/dannywolfmx/go-tts][go-tts]] as tts system text to speach
 
-* GUI:
+* Instalation
+** Prerequisites
+[[https://developer.fyne.io/started/#prerequisites][Fyne instalation]]
 
-This repo is using GIO as gui framework, to work around it you need to install some [install some libraries](https://gioui.org/doc/install)
-
-** Normal linux
-
-*** Prerequisites
-[Fyne link](https://developer.fyne.io/started/#prerequisites)
-
-[Fyne cmd tool](https://github.com/fyne-io/fyne#installing)
+[[https://github.com/fyne-io/fyne#installing][Fyne cmd tool]]
 #+begin_src sh
 go install fyne.io/fyne/v2/cmd/fyne@latest
 #+end_src
 
-*** Android (need a Icon.png file)
+** Android (need a Icon.png file)
 
 Create package for the application
 #+begin_src sh
@@ -30,8 +27,10 @@ fyne install -os android
 
 It will generate a ~apk~ with the name of the root directory
 
-***   Linux desktop
+** Normal linux
 
+
+***   Linux desktop
 **** Normal
 #+begin_src sh
 go run -o bin/linux main.go
