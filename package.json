@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@unocss/reset": "^0.45.28"
+  }
+}

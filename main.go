@@ -137,6 +137,5 @@ func (a *Prueba) Suma(num1, num2 int) int {
 }
 
 func (a *Prueba) Tiempo() string {
-	fmt.Println(a.ctx)
 	return time.Now().GoString()
 }
