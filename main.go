@@ -15,6 +15,7 @@ import (
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed all:frontend/dist
@@ -111,7 +112,15 @@ func NewApp() *App {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+	fmt.Println("Saludo")
 	a.ctx = ctx
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			fmt.Println("Hola")
+			runtime.EventsEmit(ctx, "saludo", "saludos")
+		}
+	}()
 }
 
 // Greet returns a greeting for the given name
@@ -127,13 +136,8 @@ func (a *Prueba) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet returns a greeting for the given name
-func (a *Prueba) Saludo(name string) string {
-	return fmt.Sprintf("Daniel %s, It's show time!", name)
-}
+func (a *Prueba) EventsOn(ctx context.Context, eventName string, callback func(optionalData ...interface{})) {
 
-func (a *Prueba) Suma(num1, num2 int) int {
-	return num1 + num2
 }
 
 func (a *Prueba) Tiempo() string {

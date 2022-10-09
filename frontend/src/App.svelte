@@ -1,7 +1,12 @@
 <script>
     import { Greet } from "../wailsjs/go/main/App.js";
+    import { EventsOn } from "../wailsjs/runtime";
     import Chat from "./components/chat/Chat.svelte";
     import Player from "./components/Player.svelte";
+
+    EventsOn("saludo", (text) => {
+        console.log(text);
+    });
 </script>
 
 <main class="h-screen pa-8">
