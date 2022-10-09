@@ -44,7 +44,7 @@ func (a *MainApp) Run(assets fs.FS) error {
 		}
 	}()
 
-	a.Client.Join("dannywolfmx2")
+	a.Client.Join("ibai")
 
 	// Create application with options
 	return wails.Run(&options.App{
