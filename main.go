@@ -114,6 +114,10 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	fmt.Println("Saludo")
 	a.ctx = ctx
+	runtime.EventsOn(ctx, "OnPlay", func(optionalData ...interface{}) {
+		text := optionalData[0].(string)
+		fmt.Println(text)
+	})
 	go func() {
 		for {
 			time.Sleep(5 * time.Second)
