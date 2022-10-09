@@ -1,19 +1,21 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
 	"io"
+	"io/fs"
 	"net/http"
 
 	"github.com/dannywolfmx/go-tts/tts"
-	"github.com/dannywolfmx/twitch-chat-voice/controller"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
-	"github.com/dannywolfmx/twitch-chat-voice/route"
-	"github.com/dannywolfmx/twitch-chat-voice/view"
 	"github.com/gempir/go-twitch-irc/v3"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 var (
@@ -23,31 +25,16 @@ var (
 type MainApp struct {
 	Auth       oauth.Oauth
 	BearerToke string
-	view       view.View
 	Player     *tts.TTS
 	Client     *twitch.Client
+	ctx        context.Context
 }
 
 func (a *MainApp) events() {
 }
 
-const (
-	HOME_SCREEN   = "home"
-	CONFIG_SCREEN = "config"
-)
-
-func (a *MainApp) Run() error {
+func (a *MainApp) Run(assets fs.FS) error {
 	a.events()
-	config := view.ConfigView{
-		WindowSize: view.Size{
-			Width:  400,
-			Height: 736,
-		},
-		Title: "Twitch App",
-	}
-
-	a.view = view.NewView(config)
-
 	go func() {
 		//Connect to the IRC twitch chat
 		// warning the connect function is thread blocking
@@ -57,32 +44,21 @@ func (a *MainApp) Run() error {
 		}
 	}()
 
-	route := route.NewRoute(a.view, true)
-	{
-		//Set home screen
-		home := controller.NewHomeController(func() error { return route.Go(CONFIG_SCREEN) },
-			a.Player,
-			a.Client,
-		)
-		route.Set(HOME_SCREEN, home)
+	a.Client.Join("dannywolfmx2")
 
-		config := controller.NewConfigController(func() { route.Go(HOME_SCREEN) },
-			a.Client,
-		)
-
-		route.Set(CONFIG_SCREEN, config)
-
-	}
-
-	route.Go(HOME_SCREEN)
-	a.view.ShowAndRun()
-
-	return nil
-}
-
-func (a *MainApp) Quit() {
-	//Close the window at the end to keep the running function until it stop
-	a.view.Quit()
+	// Create application with options
+	return wails.Run(&options.App{
+		Title:            "myproject",
+		Width:            1024,
+		Height:           768,
+		Assets:           assets,
+		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		OnStartup:        a.startup,
+		Bind: []interface{}{
+			a,
+			&twitch.PrivateMessage{},
+		},
+	})
 }
 
 func (a *MainApp) Stop() {
@@ -144,4 +120,16 @@ type TwitchUserInfo struct {
 
 type SingleData struct {
 	Image string `json:"profile_image_url"`
+}
+
+// startup is called when the app starts. The context is saved
+// so we can call the runtime methods
+func (a *MainApp) startup(ctx context.Context) {
+	a.ctx = ctx
+
+	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
+		fmt.Println(m)
+		runtime.EventsEmit(ctx, "OnNewMessage", message)
+	})
 }

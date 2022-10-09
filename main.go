@@ -7,19 +7,15 @@ import (
 	"fmt"
 	"image"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/dannywolfmx/go-tts/tts"
+	"github.com/dannywolfmx/twitch-chat-voice/app"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
 	"github.com/gempir/go-twitch-irc/v3"
-
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/joho/godotenv"
 )
-
-//go:embed all:frontend/dist
-var assets embed.FS
 
 var UpdateUI = make(chan bool)
 var done = make(chan bool)
@@ -50,86 +46,40 @@ var auth *oauth.Twitch
 //go:embed  .env
 var envFile string
 
-func main() {
-	//	envVars, err := godotenv.Unmarshal(envFile)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//
-	//	client_id, ok := envVars[CLIENT_ID]
-	//	if !ok {
-	//		panic(err)
-	//	}
-	//
-	//	a := &app.MainApp{
-	//		Auth:   oauth.NewTwitchOAuth(client_id),
-	//		Client: twitch.NewAnonymousClient(),
-	//		Player: tts.NewTTS("es"),
-	//	}
-	//
-	//	signal.Notify(quit, os.Interrupt, os.Kill)
-	//	go func() {
-	//		<-quit
-	//		a.Quit()
-	//	}()
-	//
-	//	if err := a.Run(); err != nil {
-	//		fmt.Println(err)
-	//	}
-	//	a.Stop()
-	// Create an instance of the app structure
-	app := NewApp()
+//go:embed all:frontend/dist
+var assets embed.FS
 
-	// Create application with options
-	err := wails.Run(&options.App{
-		Title:            "myproject",
-		Width:            1024,
-		Height:           768,
-		Assets:           assets,
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
-		Bind: []interface{}{
-			app,
-			&Prueba{},
-		},
-	})
+func main() {
+	envVars, err := godotenv.Unmarshal(envFile)
+	if err != nil {
+		panic(err)
+	}
+
+	client_id, ok := envVars[CLIENT_ID]
+	if !ok {
+		panic(err)
+	}
+
+	a := &app.MainApp{
+		Auth:   oauth.NewTwitchOAuth(client_id),
+		Client: twitch.NewAnonymousClient(),
+		Player: tts.NewTTS("es"),
+	}
+
+	signal.Notify(quit, os.Interrupt, os.Kill)
+	go func() {
+		<-quit
+		//a.Quit()
+	}()
+
+	if err := a.Run(assets); err != nil {
+		fmt.Println(err)
+	}
+	a.Stop()
 
 	if err != nil {
 		println("Error:", err.Error())
 	}
-}
-
-// App struct
-type App struct {
-	ctx context.Context
-}
-
-// NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
-}
-
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
-	fmt.Println("Saludo")
-	a.ctx = ctx
-	runtime.EventsOn(ctx, "OnPlay", func(optionalData ...interface{}) {
-		text := optionalData[0].(string)
-		fmt.Println(text)
-	})
-	go func() {
-		for {
-			time.Sleep(5 * time.Second)
-			fmt.Println("Hola")
-			runtime.EventsEmit(ctx, "saludo", "saludos")
-		}
-	}()
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Daniel %s, It's show time!", name)
 }
 
 type Prueba struct {

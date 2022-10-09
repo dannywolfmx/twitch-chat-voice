@@ -1,3 +1,11 @@
+<script>
+    import { EventsOn } from "../../../wailsjs/runtime";
+
+    EventsOn("OnNewMessage", (data) => {
+        console.log(data);
+    });
+</script>
+
 <div class=" bg-gray-200 grow overflow-y-scroll scroll-smooth">
     <div class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500">
         <span class="text-blue-500">mauriballes</span>
