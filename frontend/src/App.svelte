@@ -1,10 +1,12 @@
 <script>
     import { Greet } from "../wailsjs/go/main/App.js";
+    import Chat from "./components/chat/Chat.svelte";
+    import Player from "./components/Player.svelte";
 </script>
 
-<main class="h-screen">
-    <div class="flex h-full">
-        <div class="w-1/2 bg-gray-600 rounded-8 ma-8 flex flex-col pa-8">
+<main class="h-screen pa-8">
+    <div class="flex h-full gap-8">
+        <div class="w-1/2 bg-gray-600 rounded-2 flex flex-col pa-8">
             <div class="grow flex flex-col gap-8">
                 <input
                     type="text"
@@ -81,54 +83,10 @@
                 Guardar
             </button>
         </div>
-        <div class="w-1/2 flex flex-col">
-            <div class=" bg-gray-200 grow ma-8 overflow-y-scroll scroll-smooth">
-                <div
-                    class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500"
-                >
-                    <span class="text-blue-500">mauriballes</span>
-                    <span class="text-gray-900"
-                        >O quiza se acelero cuando ya tenias el perro</span
-                    >
-                </div>
-                <div
-                    class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500"
-                >
-                    <span class="text-blue-500">mauriballes</span>
-                    <span class="text-gray-900"
-                        >O quiza se acelero cuando ya tenias el perro</span
-                    >
-                </div>
-                <div
-                    class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500"
-                >
-                    <span class="text-blue-500">mauriballes</span>
-                    <span class="text-gray-900"
-                        >O quiza se acelero cuando ya tenias el perro</span
-                    >
-                </div>
-                <div
-                    class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500"
-                >
-                    <span class="text-blue-500">mauriballes</span>
-                    <span class="text-gray-900"
-                        >O quiza se acelero cuando ya tenias el perro</span
-                    >
-                </div>
-                <div
-                    class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500"
-                >
-                    <span class="text-blue-500">mauriballes</span>
-                    <span class="text-gray-900"
-                        >O quiza se acelero cuando ya tenias el perro</span
-                    >
-                </div>
-            </div>
-            <div class="rounded-8 grid grid-cols-3 gap-3 pa-8 ma-8 bg-gray-600">
-                <div class="h-16 rounded-full mr-4 bg-gray-100" />
-                <div class="h-16 rounded-full mr-4 bg-gray-100" />
-                <div class="h-16 rounded-full mr-4 bg-gray-100" />
-            </div>
+
+        <div class="w-1/2 flex flex-col gap-8">
+            <Chat />
+            <Player />
         </div>
     </div>
 </main>

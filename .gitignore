@@ -19,3 +19,8 @@ go.sum
 # vendor/
 
 audio/
+
+node_modules/
+package-lock.json
+
+*.apk
