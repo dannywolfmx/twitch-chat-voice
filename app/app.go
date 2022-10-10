@@ -44,8 +44,6 @@ func (a *MainApp) Run(assets fs.FS) error {
 		}
 	}()
 
-	a.Client.Join("ibai")
-
 	// Create application with options
 	return wails.Run(&options.App{
 		Title:            "myproject",
@@ -131,5 +129,13 @@ func (a *MainApp) startup(ctx context.Context) {
 		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
 		fmt.Println(m)
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
+	})
+
+	runtime.EventsOn(ctx, "OnSaveConfig", func(data ...interface{}) {
+		if len(data) > 0 {
+			channelName := data[0].(string)
+			fmt.Println("Join channel: ", channelName)
+			a.Client.Join(channelName)
+		}
 	})
 }

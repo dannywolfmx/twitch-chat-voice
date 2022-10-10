@@ -27,9 +27,9 @@
     class=" bg-gray-200 grow overflow-y-scroll scroll-smooth"
 >
     {#each messages as { user, text }}
-        <div class="flex flex-col pa-8 gap-1 border-b-4 border-gray-500">
-            <span class="text-blue-500">{user}</span>
-            <span class="text-gray-900">{text}</span>
+        <div class="flex flex-col pa-1 gap-1 border-b-4 border-gray-100">
+            <p class="text-blue-500">{user}</p>
+            <p class="text-gray-900">{text}</p>
         </div>
     {/each}
 </div>
