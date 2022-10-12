@@ -129,6 +129,7 @@ func (a *MainApp) startup(ctx context.Context) {
 		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
 		fmt.Println(m)
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
+		a.Player.Add(m)
 	})
 
 	runtime.EventsOn(ctx, "OnSaveConfig", func(data ...interface{}) {

@@ -2,7 +2,13 @@
     import { EventsOn } from "../../../wailsjs/runtime";
     import { afterUpdate } from "svelte";
 
-    let messages = [];
+    let messages = [
+        {
+            text: "Prueba",
+            user: "User prueba",
+            color: "black",
+        },
+    ];
     let element;
 
     afterUpdate(() => {
@@ -24,17 +30,17 @@
     });
 </script>
 
-<div
-    bind:this={element}
-    class=" bg-gray-200 grow overflow-y-scroll scroll-smooth"
->
+<p class="text-white">
+    Is dark mode: {window.matchMedia("(prefers-color-scheme: dark)").matches}
+</p>
+<div bind:this={element} class="grow overflow-y-scroll scroll-smooth">
     {#each messages as { user, text, color }}
         <div
-            class="flex flex-col pa-1 gap-1 border-b-4 border-gray-100 pl-8"
+            class="flex gap-1 border-l-4 border-gray-100 p-3 rounded-1 mb-2"
             style:border-color={color}
         >
-            <p class="font-bold" style:color>{user}</p>
-            <p class="text-black font-bold">{text}</p>
+            <p class="font-bold text-white">{user}:</p>
+            <p class="text-gray-100 font-bold">{text}</p>
         </div>
     {/each}
 </div>
