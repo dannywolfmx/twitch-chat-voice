@@ -14,9 +14,11 @@
     };
 
     EventsOn("OnNewMessage", (data) => {
+        console.log(data.Tags);
         let message = {
             text: data.Message,
             user: data.User.Name,
+            color: data.User.Color,
         };
         messages = [...messages, message];
     });
@@ -26,10 +28,13 @@
     bind:this={element}
     class=" bg-gray-200 grow overflow-y-scroll scroll-smooth"
 >
-    {#each messages as { user, text }}
-        <div class="flex flex-col pa-1 gap-1 border-b-4 border-gray-100">
-            <p class="text-blue-500">{user}</p>
-            <p class="text-gray-900">{text}</p>
+    {#each messages as { user, text, color }}
+        <div
+            class="flex flex-col pa-1 gap-1 border-b-4 border-gray-100 pl-8"
+            style:border-color={color}
+        >
+            <p class="font-bold" style:color>{user}</p>
+            <p class="text-black font-bold">{text}</p>
         </div>
     {/each}
 </div>

@@ -11,11 +11,13 @@
 
 <main class="h-screen pa-8">
     <div class="flex h-full gap-8">
-        <div class="w-1/2 bg-gray-600 rounded-2 flex flex-col pa-8">
+        <div
+            class="lg:w-180 md:w-full bg-gray-600 rounded-2 md:flex flex-col pa-8 hidden"
+        >
             <Form />
         </div>
 
-        <div class="w-1/2 flex flex-col gap-6">
+        <div class="w-full flex flex-col gap-6">
             <Chat />
             <Player />
         </div>
