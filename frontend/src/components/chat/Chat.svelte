@@ -8,6 +8,16 @@
             user: "User prueba",
             color: "black",
         },
+        {
+            text: "Prueba 2",
+            user: "User prueba",
+            color: "black",
+        },
+        {
+            text: "Prueba 3",
+            user: "User prueba",
+            color: "black",
+        },
     ];
     let element;
 
@@ -30,17 +40,25 @@
     });
 </script>
 
-<p class="text-white">
-    Is dark mode: {window.matchMedia("(prefers-color-scheme: dark)").matches}
-</p>
-<div bind:this={element} class="grow overflow-y-scroll scroll-smooth">
+<div
+    bind:this={element}
+    class="grow overflow-y-scroll scroll-smooth flex flex-col h-full"
+>
+    <div class="grow" />
     {#each messages as { user, text, color }}
         <div
-            class="flex gap-1 border-l-4 border-gray-100 p-3 rounded-1 mb-2"
+            class="flex border-b-4 border-gray-100 rounded-1 mb-2"
             style:border-color={color}
         >
-            <p class="font-bold text-white">{user}:</p>
-            <p class="text-gray-100 font-bold">{text}</p>
+            <div
+                class="font-bold text-white p-2"
+                style:background-color={color}
+            >
+                {user}
+            </div>
+            <p class="text-gray-100 font-bold p-2">
+                {text}
+            </p>
         </div>
     {/each}
 </div>
