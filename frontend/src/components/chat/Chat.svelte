@@ -13,11 +13,6 @@
             user: "User prueba",
             color: "black",
         },
-        {
-            text: "Prueba 3",
-            user: "User prueba",
-            color: "black",
-        },
     ];
     let element;
 
@@ -42,7 +37,7 @@
 
 <div
     bind:this={element}
-    class="grow overflow-y-scroll scroll-smooth flex flex-col h-full"
+    class="flex flex-col h-full overflow-y-scroll scroll-smooth p-8 grow"
 >
     <div class="grow" />
     {#each messages as { user, text, color }}

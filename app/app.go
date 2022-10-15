@@ -126,10 +126,12 @@ func (a *MainApp) startup(ctx context.Context) {
 	a.ctx = ctx
 
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
-		fmt.Println(m)
-		runtime.EventsEmit(ctx, "OnNewMessage", message)
-		a.Player.Add(m)
+		go func() {
+			m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
+			fmt.Println(m)
+			runtime.EventsEmit(ctx, "OnNewMessage", message)
+			a.Player.Add(m)
+		}()
 	})
 
 	runtime.EventsOn(ctx, "OnSaveConfig", func(data ...interface{}) {

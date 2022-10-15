@@ -1,8 +1,8 @@
 import Config from "./pages/Config.svelte";
-import Home from "./pages/Home.svelte";
+import Main from "./pages/Main.svelte";
 
 
 export default {
-  "Home": Home,
+  "Main": Main,
   "Config": Config,
 };
