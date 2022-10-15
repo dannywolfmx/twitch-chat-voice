@@ -14,6 +14,7 @@
             color: "black",
         },
     ];
+
     let element;
 
     afterUpdate(() => {

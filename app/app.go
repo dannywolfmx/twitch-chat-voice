@@ -130,15 +130,23 @@ func (a *MainApp) startup(ctx context.Context) {
 			m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
 			fmt.Println(m)
 			runtime.EventsEmit(ctx, "OnNewMessage", message)
-			a.Player.Add(m)
 		}()
 	})
 
+	//GUI Events
 	runtime.EventsOn(ctx, "OnSaveConfig", func(data ...interface{}) {
 		if len(data) > 0 {
 			channelName := data[0].(string)
 			fmt.Println("Join channel: ", channelName)
 			a.Client.Join(channelName)
+		}
+	})
+
+	runtime.EventsOn(ctx, "OnPlay", func(optionalData ...interface{}) {
+		if len(optionalData) > 0 {
+			user := optionalData[0].(map[string]any)["user"]
+			message := optionalData[0].(map[string]any)["message"]
+			fmt.Println("Usuario: ", user, "Message: ", message)
 		}
 	})
 }
