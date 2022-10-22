@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"embed"
 	_ "embed"
 	"fmt"
 	"image"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/app"
@@ -60,10 +58,13 @@ func main() {
 		panic(err)
 	}
 
+	player := tts.NewTTS("es")
+	player.Play()
+
 	a := &app.MainApp{
 		Auth:   oauth.NewTwitchOAuth(client_id),
 		Client: twitch.NewAnonymousClient(),
-		Player: tts.NewTTS("es"),
+		Player: player,
 	}
 
 	signal.Notify(quit, os.Interrupt, os.Kill)
@@ -80,20 +81,4 @@ func main() {
 	if err != nil {
 		println("Error:", err.Error())
 	}
-}
-
-type Prueba struct {
-	ctx context.Context
-}
-
-func (a *Prueba) startup(ctx context.Context) {
-	a.ctx = ctx
-}
-
-func (a *Prueba) EventsOn(ctx context.Context, eventName string, callback func(optionalData ...interface{})) {
-
-}
-
-func (a *Prueba) Tiempo() string {
-	return time.Now().GoString()
 }

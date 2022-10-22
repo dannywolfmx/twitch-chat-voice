@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "^1.1.34",
     "@sveltejs/vite-plugin-svelte": "^1.0.1",
+    "@unocss/preset-icons": "^0.45.30",
     "@unocss/preset-wind": "^0.45.28",
     "svelte": "^3.49.0",
     "unocss": "^0.45.28",

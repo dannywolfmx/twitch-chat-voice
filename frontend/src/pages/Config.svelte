@@ -1,7 +1,7 @@
 <script>
     import Loggin from "../components/config/Loggin.svelte";
     import Config from "../components/config/Config.svelte";
-    let logged = false;
+    let logged = true;
 </script>
 
 <div class="w-full m-8">

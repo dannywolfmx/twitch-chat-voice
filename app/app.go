@@ -120,33 +120,43 @@ type SingleData struct {
 	Image string `json:"profile_image_url"`
 }
 
+type Message struct {
+	Message string `json:"Message"`
+	User    string `json:"user"`
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *MainApp) startup(ctx context.Context) {
 	a.ctx = ctx
 
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		go func() {
-			m := fmt.Sprintf("%s: %s", message.User.Name, message.Message)
-			fmt.Println(m)
-			runtime.EventsEmit(ctx, "OnNewMessage", message)
-		}()
+		m := fmt.Sprintf("%s dice %s", message.User.Name, message.Message)
+		fmt.Println(m)
+		go a.Player.Add(m)
+		runtime.EventsEmit(ctx, "OnNewMessage", message)
 	})
 
 	//GUI Events
+	runtime.EventsOn(ctx, "OnNext", func(optionalData ...interface{}) {
+		a.Player.Next()
+	})
+
+	runtime.EventsOn(ctx, "OnPause", func(optionalData ...interface{}) {
+		a.Player.Pause()
+	})
+
+	runtime.EventsOn(ctx, "OnResume", func(optionalData ...interface{}) {
+		a.Player.Continue()
+	})
+
 	runtime.EventsOn(ctx, "OnSaveConfig", func(data ...interface{}) {
 		if len(data) > 0 {
 			channelName := data[0].(string)
 			fmt.Println("Join channel: ", channelName)
 			a.Client.Join(channelName)
+
 		}
 	})
 
-	runtime.EventsOn(ctx, "OnPlay", func(optionalData ...interface{}) {
-		if len(optionalData) > 0 {
-			user := optionalData[0].(map[string]any)["user"]
-			message := optionalData[0].(map[string]any)["message"]
-			fmt.Println("Usuario: ", user, "Message: ", message)
-		}
-	})
 }
