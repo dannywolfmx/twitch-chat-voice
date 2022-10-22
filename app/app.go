@@ -128,10 +128,19 @@ type Message struct {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *MainApp) startup(ctx context.Context) {
+	lastUser := ""
 	a.ctx = ctx
 
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		m := fmt.Sprintf("%s dice %s", message.User.Name, message.Message)
+		//Don't repeat the las name
+		user := message.User.Name
+		m := ""
+		if lastUser == user {
+			m = message.Message
+		} else {
+			lastUser = user
+			m = fmt.Sprintf("%s ha dicho %s", user, message.Message)
+		}
 		fmt.Println(m)
 		go a.Player.Add(m)
 		runtime.EventsEmit(ctx, "OnNewMessage", message)

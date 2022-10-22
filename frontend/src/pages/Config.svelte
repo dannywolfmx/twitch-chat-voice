@@ -4,7 +4,7 @@
     let logged = true;
 </script>
 
-<div class="w-full m-8">
+<div class="w-full m-auto m-8">
     {#if logged}
         <Loggin />
     {:else}
