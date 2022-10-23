@@ -17,7 +17,7 @@
     class="flex lg:flex-row flex-col gap-10 items-center max-w-200 m-auto p-10 h-full "
 >
     <div
-        class="flex lg:flex-col gap-8 lg:gap-20 lg:grow items-center lg:w-64 bg-purple-900 p-4 rounded-2"
+        class="flex lg:flex-col gap-8 lg:gap-20 grow items-center lg:w-64 bg-purple-900 p-4 rounded-2"
     >
         <div class="h-32 w-32 rounded-2 p-2">
             <i class="i-tabler-brand-twitch h-full w-full text-purple-200" />
@@ -31,7 +31,7 @@
         </button>
     </div>
     <div
-        class="flex  lg:flex-col gap-8 lg:gap-20 lg:grow items-center lg:w-64  bg-gray-900 p-4 rounded-2"
+        class="flex  lg:flex-col gap-8 lg:gap-20 grow items-center lg:w-64  bg-gray-900 p-4 rounded-2"
     >
         <div class="h-32 w-32 rounded-2 p-2">
             <i class="i-tabler-spy h-full w-full text-gray-200" />
