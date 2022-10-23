@@ -2,11 +2,11 @@
     import { EventsEmit } from "../../../wailsjs/runtime";
 
     //Real data
-    //let channel = "";
+    let channel = "";
     //let configDefault = true;
 
     //Test data
-    let channel = "dannywolfmx2";
+    //let channel = "dannywolfmx2";
 
     function save() {
         EventsEmit("OnSaveConfig", channel);
