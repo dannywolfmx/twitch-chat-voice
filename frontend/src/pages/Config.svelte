@@ -4,7 +4,7 @@
     let logged = true;
 </script>
 
-<div class="w-full m-auto m-8">
+<div class="w-full h-full grow m-auto m-8 overflow-scroll ">
     {#if logged}
         <Loggin />
     {:else}
