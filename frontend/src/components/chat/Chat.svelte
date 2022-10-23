@@ -36,25 +36,27 @@
     });
 </script>
 
-<div
-    bind:this={element}
-    class="flex flex-col h-full overflow-y-scroll scroll-smooth p-8 grow"
->
-    <div class="grow" />
-    {#each messages as { user, text, color }}
-        <div
-            class="flex border-b-4 border-gray-100 rounded-1 mb-2"
-            style:border-color={color}
-        >
-            <div
-                class="font-bold text-white p-2"
-                style:background-color={color}
-            >
-                {user}
+<div class="grow p-8 overflow-hidden scroll-smooth ">
+    <div
+        bind:this={element}
+        class="flex flex-col overflow-y-scroll h-full p-4 bg-gray-700 rounded-2 max-w-128 mx-auto"
+    >
+        <div class="grow" />
+        {#each messages as { user, text, color }}
+            <div class="flex  rounded-1 mb-2">
+                <div
+                    class="font-bold text-white p-2 rounded-2"
+                    style:background-color={color}
+                >
+                    {user}
+                </div>
+                <p
+                    class="text-gray-100 font-bold p-2  border-gray-100 grow"
+                    style:border-color={color}
+                >
+                    {text}
+                </p>
             </div>
-            <p class="text-gray-100 font-bold p-2">
-                {text}
-            </p>
-        </div>
-    {/each}
+        {/each}
+    </div>
 </div>
