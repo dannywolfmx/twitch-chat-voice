@@ -1,53 +1,43 @@
 * Libreries:
-- Fyne as GUI for windows, linux, android etc...
-- [[github.com/dannywolfmx/go-tts][go-tts]] as tts system text to speach
+- [[https://github.com/wailsapp/wails][Wails]]
+- [[github.com/dannywolfmx/go-tts][go-tts]] as tts system text to speach (it uses [[https://github.com/hajimehoshi/oto][oto]])
 
 * Instalation
 ** Prerequisites
-[[https://developer.fyne.io/started/#prerequisites][Fyne instalation]]
+*** wails dev (tool to run wails)
 
-[[https://github.com/fyne-io/fyne#installing][Fyne cmd tool]]
+[[https://wails.io/docs/gettingstarted/installation#installing-wails][Install wails command on linux]]
 #+begin_src sh
-go install fyne.io/fyne/v2/cmd/fyne@latest
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
 #+end_src
+*** gcc
 
-** Android (need a Icon.png file)
-
-Create package for the application
-#+begin_src sh
-fyne package -os android -appID my.domain.appname
-
-#+end_src
-
-Install the app in the android phone or android emulator
-~note~ keep an eye on your phone to see if the debug need something
+Ubuntu installation
 #+begin_src
-fyne install -os android
+sudo apt install build-essential
 #+end_src
 
-It will generate a ~apk~ with the name of the root directory
+[[https://wails.io/docs/guides/linux-distro-support][Aditional distros]]
 
-** Normal linux
+*** libgtk-3
 
+Ubuntu installation
+#+begin_src
+sudo apt install libgtk-3-dev
+#+end_src
 
+[[https://wails.io/docs/guides/linux-distro-support][Aditional distros]]
+
+*** libwebkit (v4)
+
+Ubuntu installation
+#+begin_src
+sudo apt install libwebkit2gtk-4.0-dev
+#+end_src
+
+[[https://wails.io/docs/guides/linux-distro-support][Aditional distros]]
+** Run
 ***   Linux desktop
-**** Normal
 #+begin_src sh
-go run -o bin/linux main.go
-#+end_src
-
-**** without X11
-#+begin_src sh
-go run --tags nox11 -o bin/linux-without-x11 main.go
-#+end_src
-
-**** without Wayland
-#+begin_src sh
-go run --tags nowayland -o bin/linux-without-wayland main.go
-#+end_src
-
-
-** Crosscompile from linux to windows
-#+begin_src sh
-GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o bin/windows-amd64.exe main.go
+wails dev
 #+end_src
