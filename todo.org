@@ -1,0 +1,4 @@
+#+title: Todo
+
+* TODO DB para guardar sesion de un usuario.
+* TODO Ocultar barra lateral cuando la app sea pequeña

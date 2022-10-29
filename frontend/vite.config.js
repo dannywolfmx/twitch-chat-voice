@@ -5,9 +5,6 @@ import { extractorSvelte } from '@unocss/core'
 import presetUno from '@unocss/preset-uno'
 import presetIcons from '@unocss/preset-icons'
 
-//import presetWind from '@unocss/preset-wind'
-
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     Unocss({

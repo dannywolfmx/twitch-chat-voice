@@ -3,8 +3,10 @@ package main
 import (
 	"embed"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"image"
+	"io/fs"
 	"os"
 	"os/signal"
 
@@ -81,4 +83,48 @@ func main() {
 	if err != nil {
 		println("Error:", err.Error())
 	}
+}
+
+type Config struct {
+	Username string `json:"username"`
+}
+
+type RepoConfig struct {
+	filename string
+	fileMode fs.FileMode
+}
+
+func NewRepoConfig(filename string) *RepoConfig {
+	return &RepoConfig{
+		filename: filename,
+		fileMode: os.FileMode(0777),
+	}
+}
+
+func (r *RepoConfig) Delete() error {
+	return os.Remove(r.filename)
+}
+
+func (r *RepoConfig) Get() (*Config, error) {
+	buff, err := os.ReadFile(r.filename)
+
+	if err != nil {
+		return nil, err
+	}
+
+	c := &Config{}
+	err = json.Unmarshal(buff, c)
+
+	return c, err
+
+}
+
+func (r *RepoConfig) Save(config *Config) error {
+	buff, err := json.Marshal(config)
+
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(r.filename, buff, r.fileMode)
 }
