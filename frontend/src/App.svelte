@@ -14,13 +14,7 @@
     $: renderPage = routes[selectedPage];
 </script>
 
-<main class="h-screen bg-gray-800">
-    <div class="flex flex-col h-full">
-        <div class="grow flex h-full ">
-            <div>
-                <Navbar bind:selectedPage />
-            </div>
-            <svelte:component this={renderPage} />
-        </div>
-    </div>
+<main class="bg-gray-800 h-screen flex-col flex">
+    <svelte:component this={renderPage} />
+    <Navbar bind:selectedPage />
 </main>

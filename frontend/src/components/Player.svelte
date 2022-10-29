@@ -19,26 +19,26 @@
     }
 </script>
 
-<div class="flex justify-center pa-2 rounded-r-2 ">
+<div class="flex justify-between rounded-r-2 grow min-w-40">
     {#if pauseState}
         <button
-            class="h-16 w-16 rounded-2 mr-4 bg-gray-200 p-3"
+            class="grow rounded-l-2 bg-gray-700 p-3"
             on:click={() => resumeEvent()}
         >
-            <i class="i-tabler-play text-gray-800 h-full w-full" />
+            <i class="i-tabler-play text-purple-200 h-full w-full" />
         </button>
     {:else}
         <button
-            class="h-16 w-16 rounded-2 mr-4 bg-red-200 p-3"
+            class="grow rounded-l-2 bg-gray-700 p-3"
             on:click={() => pauseEvent()}
         >
-            <i class="i-tabler-pause text-gray-800 h-full w-full" />
+            <i class="i-tabler-pause text-purple-200 h-full w-full" />
         </button>
     {/if}
     <button
-        class="h-16 w-16 rounded-2 mr-4 bg-gray-100 p-3"
+        class="rounded-r-2 bg-gray-600 p-3 grow"
         on:click={() => nextEvent()}
     >
-        <i class="i-tabler-player-track-next text-gray-800 h-full w-full" />
+        <i class="i-tabler-player-track-next text-purple-200 h-full w-full" />
     </button>
 </div>
