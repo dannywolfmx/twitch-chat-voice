@@ -62,7 +62,11 @@ func main() {
 	player := tts.NewTTS("es")
 	player.Play()
 
-	repoConfig := repo.NewRepoConfigFile("config.json")
+	repoConfig, err := repo.NewRepoConfigFile("config.json")
+
+	if err != nil {
+		panic(err)
+	}
 
 	a := &app.MainApp{
 		Auth:       oauth.NewTwitchOAuth(client_id),

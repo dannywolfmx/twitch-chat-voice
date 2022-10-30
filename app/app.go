@@ -54,6 +54,7 @@ func (a *MainApp) Run(assets fs.FS) error {
 		Assets:           assets,
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        a.startup,
+		OnDomReady:       a.domready,
 		Bind: []interface{}{
 			a,
 			&twitch.PrivateMessage{},
@@ -163,10 +164,23 @@ func (a *MainApp) startup(ctx context.Context) {
 
 	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
 		if len(data) > 0 {
-			channelName := data[0].(string)
-			fmt.Println("Join channel: ", channelName)
-			a.Client.Join(channelName)
-
+			username := data[0].(string)
+			a.RepoConfig.SaveAnonymousUsername(username)
+			runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
+			a.Client.Join(username)
 		}
 	})
+
+	runtime.EventsOn(ctx, "OnIsLoggedIn", func(data ...interface{}) {
+		username := a.RepoConfig.GetAnonymousUsername()
+		runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
+	})
+
+}
+
+func (a *MainApp) domready(ctx context.Context) {
+	username := a.RepoConfig.GetAnonymousUsername()
+	if username != "" {
+		a.Client.Join(username)
+	}
 }

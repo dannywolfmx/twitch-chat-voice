@@ -10,6 +10,7 @@
 
     function save() {
         EventsEmit("OnConnectAnonymous", channel);
+        channel = "";
     }
 </script>
 

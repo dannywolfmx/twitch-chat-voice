@@ -1,5 +1,4 @@
 <script>
-    let channel = "prueba";
     function save() {}
 </script>
 
