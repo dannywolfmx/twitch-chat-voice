@@ -9,7 +9,7 @@
     //let channel = "dannywolfmx2";
 
     function save() {
-        EventsEmit("OnSaveConfig", channel);
+        EventsEmit("OnConnectAnonymous", channel);
     }
 </script>
 

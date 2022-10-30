@@ -12,6 +12,7 @@ import (
 
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
+	"github.com/dannywolfmx/twitch-chat-voice/repo"
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -28,6 +29,7 @@ type MainApp struct {
 	Player     *tts.TTS
 	Client     *twitch.Client
 	ctx        context.Context
+	RepoConfig repo.RepoConfig
 }
 
 func (a *MainApp) events() {
@@ -159,7 +161,7 @@ func (a *MainApp) startup(ctx context.Context) {
 		a.Player.Continue()
 	})
 
-	runtime.EventsOn(ctx, "OnSaveConfig", func(data ...interface{}) {
+	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
 		if len(data) > 0 {
 			channelName := data[0].(string)
 			fmt.Println("Join channel: ", channelName)
@@ -167,5 +169,4 @@ func (a *MainApp) startup(ctx context.Context) {
 
 		}
 	})
-
 }
