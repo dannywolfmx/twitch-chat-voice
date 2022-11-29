@@ -4,7 +4,6 @@ import (
 	"embed"
 	_ "embed"
 	"fmt"
-	"image"
 	"os"
 	"os/signal"
 
@@ -13,63 +12,37 @@ import (
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
 	"github.com/dannywolfmx/twitch-chat-voice/repo"
 	"github.com/gempir/go-twitch-irc/v3"
-	"github.com/joho/godotenv"
 )
 
-var UpdateUI = make(chan bool)
-var done = make(chan bool)
-
-var texto string
-
-var client *twitch.Client
-var player *tts.TTS
-
-var img image.Image
+const CONFIG_FILE string = "config.json"
 
 var quit = make(chan os.Signal, 1)
 
-const (
-	BEARER    = "BEARER"
-	CLIENT_ID = "CLIENT_ID"
-	TEST      = "TEST"
-)
+//go:embed all:frontend/dist
+var assets embed.FS
 
 type MyPlayer struct {
 	*tts.TTS
 }
 
-var bearerToken string
-
-var auth *oauth.Twitch
-
-//go:embed  .env
-var envFile string
-
-//go:embed all:frontend/dist
-var assets embed.FS
-
 func main() {
-	envVars, err := godotenv.Unmarshal(envFile)
+	repoConfig, err := repo.NewRepoConfigFile(CONFIG_FILE)
+
 	if err != nil {
 		panic(err)
 	}
 
-	client_id, ok := envVars[CLIENT_ID]
-	if !ok {
+	clientID, err := repoConfig.GetClientID()
+
+	if err != nil {
 		panic(err)
 	}
 
-	player := tts.NewTTS("es")
+	player := tts.NewTTS(repoConfig.GetLang())
 	player.Play()
 
-	repoConfig, err := repo.NewRepoConfigFile("config.json")
-
-	if err != nil {
-		panic(err)
-	}
-
 	a := &app.MainApp{
-		Auth:       oauth.NewTwitchOAuth(client_id),
+		Auth:       oauth.NewTwitchOAuth(clientID),
 		Client:     twitch.NewAnonymousClient(),
 		Player:     player,
 		RepoConfig: repoConfig,
