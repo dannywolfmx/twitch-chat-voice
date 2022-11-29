@@ -13,4 +13,5 @@ yarn-error.log*
 .eslintcache
 
 package-lock.json
+package.json.md5
 dist/
