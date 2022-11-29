@@ -2,4 +2,4 @@
 
 * TODO DB para guardar sesion de un usuario.
 ** DONE Repo of the configuration
-** TODO Conect repository with the frontedn
+** TODO disconnect user from the current session
