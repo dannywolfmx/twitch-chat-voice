@@ -25,3 +25,4 @@ package-lock.json
 
 *.apk
 build/
+config.json

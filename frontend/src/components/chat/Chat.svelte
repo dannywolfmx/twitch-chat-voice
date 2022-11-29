@@ -2,18 +2,7 @@
     import { EventsOn } from "../../../wailsjs/runtime";
     import { afterUpdate } from "svelte";
 
-    let messages = [
-        {
-            text: "Prueba",
-            user: "User prueba",
-            color: "black",
-        },
-        {
-            text: "Prueba 2",
-            user: "User prueba",
-            color: "black",
-        },
-    ];
+    let messages = [];
 
     let element;
 
