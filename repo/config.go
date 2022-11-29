@@ -10,9 +10,10 @@ import (
 const DEFAULT_LANG string = "en"
 
 type Config struct {
-	Username string `json:"username"`
-	Lang     string `json:"lang"`
 	ClientID string `json:"clientID"`
+	Lang     string `json:"lang"`
+	Username string `json:"username"`
+	Token    string `json:"token"`
 }
 
 type repoConfigFile struct {
@@ -56,6 +57,10 @@ func (r *repoConfigFile) GetLang() string {
 	return r.config.Lang
 }
 
+func (r *repoConfigFile) GetTwitchToken() string {
+	return r.config.Token
+}
+
 func getConfig(filename string) (*Config, error) {
 	buff, err := os.ReadFile(filename)
 
@@ -86,5 +91,10 @@ func (r *repoConfigFile) SaveAnonymousUsername(username string) error {
 
 func (r *repoConfigFile) SaveLang(lang string) error {
 	r.config.Lang = lang
+	return r.save()
+}
+
+func (r *repoConfigFile) SaveTwitchToken(token string) error {
+	r.config.Token = token
 	return r.save()
 }

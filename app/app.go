@@ -162,6 +162,15 @@ func (a *MainApp) startup(ctx context.Context) {
 		a.Player.Continue()
 	})
 
+	runtime.EventsOn(ctx, "ConnectWithTwitch", func(optionalData ...interface{}) {
+		token, err := a.Auth.Connect()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		a.RepoConfig.SaveTwitchToken(token)
+	})
+
 	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
 		if len(data) > 0 {
 			username := data[0].(string)

@@ -1,5 +1,9 @@
 <script>
-    function save() {}
+    import { EventsEmit } from "../../../wailsjs/runtime";
+
+    function connectWithTwitch() {
+        EventsEmit("ConnectWithTwitch")
+    }
 </script>
 
 <div class="grid sm:p-8 p-2 md:grid-cols-2 gap-4">
@@ -21,7 +25,7 @@
         </div>
         <button
             class="grow bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-r h-full"
-            on:click={save}
+            on:click={connectWithTwitch}
         >
             Conectar con twitch
         </button>

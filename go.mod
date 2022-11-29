@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/dannywolfmx/go-tts v0.2.5
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
-	github.com/joho/godotenv v1.4.0
 	github.com/toqueteos/webbrowser v1.2.0
 	github.com/wailsapp/wails/v2 v2.0.0
 )

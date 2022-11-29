@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -33,12 +34,15 @@ func (s *Server) Run(path string) (string, error) {
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		token = r.URL.Query().Get("token")
-		w.WriteHeader(http.StatusOK)
-		go func() {
-			time.Sleep(time.Second * 4)
-			s.Shutdown(context.TODO())
-		}()
+		if r.Method == "POST" {
+			token = r.URL.Query().Get("token")
+			fmt.Println("token: ", token)
+			w.WriteHeader(http.StatusOK)
+			go func() {
+				time.Sleep(time.Second * 4)
+				s.Shutdown(context.TODO())
+			}()
+		}
 	})
 
 	s.Handler = mux
