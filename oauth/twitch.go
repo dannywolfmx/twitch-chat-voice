@@ -49,7 +49,9 @@ func (t *Twitch) Connect() (string, error) {
 		return "", err
 	}
 
-	return server.NewServer(":8080").Run("/twitch/oauth")
+	s := server.NewServer(":8080")
+
+	return s.Run("/twitch/oauth")
 }
 
 func (t *Twitch) getURL() (string, error) {

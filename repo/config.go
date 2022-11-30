@@ -75,7 +75,7 @@ func getConfig(filename string) (*Config, error) {
 }
 
 func (r *repoConfigFile) save() error {
-	buff, err := json.Marshal(r.config)
+	buff, err := json.MarshalIndent(r.config, "", "\t")
 
 	if err != nil {
 		return err
