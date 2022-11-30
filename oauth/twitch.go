@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"context"
 	"net/url"
 	"strings"
 
@@ -51,7 +52,19 @@ func (t *Twitch) Connect() (string, error) {
 
 	s := server.NewServer(":8080")
 
-	return s.Run("/twitch/oauth")
+	tokenChan := make(chan string, 1)
+	errServer := make(chan error, 1)
+	go func() {
+		errServer <- s.Run("/twitch/oauth", tokenChan)
+
+	}()
+
+	token := <-tokenChan
+	s.Shutdown(context.TODO())
+
+	err = <-errServer
+
+	return token, err
 }
 
 func (t *Twitch) getURL() (string, error) {
