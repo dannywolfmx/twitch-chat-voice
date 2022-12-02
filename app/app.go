@@ -32,11 +32,7 @@ type MainApp struct {
 	RepoConfig repo.RepoConfig
 }
 
-func (a *MainApp) events() {
-}
-
 func (a *MainApp) Run(assets fs.FS) error {
-	a.events()
 	go func() {
 		//Connect to the IRC twitch chat
 		// warning the connect function is thread blocking
@@ -57,7 +53,6 @@ func (a *MainApp) Run(assets fs.FS) error {
 		OnDomReady:       a.domready,
 		Bind: []interface{}{
 			a,
-			&twitch.PrivateMessage{},
 		},
 	})
 }

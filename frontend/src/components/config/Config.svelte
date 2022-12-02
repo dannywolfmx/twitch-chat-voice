@@ -1,9 +1,19 @@
 <script>
-    import { EventsEmit } from "../../../wailsjs/runtime";
+    import { EventsEmit, EventsOn} from "../../../wailsjs/runtime";
 
     function connectWithTwitch() {
         EventsEmit("ConnectWithTwitch")
     }
+
+    EventsOn("OnNewMessage", (data) => {
+        let message = {
+            text: data.Message,
+            user: data.User.Name,
+            color: data.User.Color,
+        };
+        messages = [...messages, message];
+    });
+
 </script>
 
 <div class="grid sm:p-8 p-2 md:grid-cols-2 gap-4">
