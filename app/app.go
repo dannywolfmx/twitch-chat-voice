@@ -8,6 +8,7 @@ import (
 	"image"
 	"io"
 	"io/fs"
+	"log"
 	"net/http"
 
 	"github.com/dannywolfmx/go-tts/tts"
@@ -33,6 +34,10 @@ type MainApp struct {
 }
 
 func (a *MainApp) Run(assets fs.FS) error {
+	c := &ConnectWithTwitch{
+		Auth:            a.Auth,
+		SaveTwitchToken: a.RepoConfig.SaveTwitchToken,
+	}
 	go func() {
 		//Connect to the IRC twitch chat
 		// warning the connect function is thread blocking
@@ -54,6 +59,8 @@ func (a *MainApp) Run(assets fs.FS) error {
 		Bind: []any{
 			a,
 			a.Player,
+			a.RepoConfig,
+			c,
 		},
 	})
 }
@@ -108,7 +115,6 @@ func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) 
 	defer res.Body.Close()
 
 	return img, err
-
 }
 
 type TwitchUserInfo struct {
@@ -146,12 +152,6 @@ func (a *MainApp) startup(ctx context.Context) {
 	})
 
 	runtime.EventsOn(ctx, "ConnectWithTwitch", func(optionalData ...interface{}) {
-		token, err := a.Auth.Connect()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		a.RepoConfig.SaveTwitchToken(token)
 	})
 
 	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
@@ -170,13 +170,31 @@ func (a *MainApp) startup(ctx context.Context) {
 
 }
 
-func (a *MainApp) IsLoggedIn() bool {
-	return a.RepoConfig.GetTwitchToken() != "" || a.RepoConfig.GetAnonymousUsername() != ""
-}
-
 func (a *MainApp) domready(ctx context.Context) {
 	username := a.RepoConfig.GetAnonymousUsername()
 	if username != "" {
 		a.Client.Join(username)
 	}
+}
+
+type ConnectWithTwitch struct {
+	Auth            oauth.Oauth
+	SaveTwitchToken func(token string) error
+}
+
+func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
+	token, err := c.Auth.Connect()
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	err = c.SaveTwitchToken(token)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	return true
 }

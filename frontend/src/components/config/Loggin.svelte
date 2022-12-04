@@ -1,15 +1,9 @@
 <script>
-    import { EventsEmit } from "../../../wailsjs/runtime";
-
-    //Real data
+    import { ConnectAnonymous, ConnectTwitch } from "../../store/config";
     let channel = "";
-    //let configDefault = true;
-
-    //Test data
-    //let channel = "dannywolfmx2";
 
     function save() {
-        EventsEmit("OnConnectAnonymous", channel);
+        ConnectAnonymous(channel);
         channel = "";
     }
 </script>
@@ -25,7 +19,7 @@
         </div>
         <button
             class="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-            on:click={save}
+            on:click={ConnectTwitch}
         >
             Conectar con twitch
         </button>

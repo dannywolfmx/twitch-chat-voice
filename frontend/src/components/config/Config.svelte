@@ -1,6 +1,16 @@
 <script>
     import { EventsEmit } from "../../../wailsjs/runtime";
 
+    import { Config, Logout } from "../../store/config";
+
+    let username = "";
+    let isLoggedToTwitch = false;
+
+    Config.subscribe((c) => {
+        username = c.username;
+        isLoggedToTwitch = c.clientID != "";
+    });
+
     function connectWithTwitch() {
         EventsEmit("ConnectWithTwitch");
     }
@@ -19,17 +29,35 @@
             <option value="español">Español</option>
         </select>
     </div>
-    <div class="flex grow items-center bg-purple-900 rounded-2">
-        <div class="h-16 w-16 rounded-2 p-4">
-            <i class="i-tabler-brand-twitch h-full w-full text-purple-200 " />
+    {#if isLoggedToTwitch}
+        <div class="flex grow items-center bg-purple-800 rounded-2">
+            <div
+                class="grow bg-purple-900 text-white font-bold rounded flex justify-center h-full items-center"
+            >
+                {username}
+            </div>
+            <button
+                class="h-16 w-16 rounded-2 p-4 hover:bg-purple-900"
+                on:click={Logout}
+            >
+                <i class="i-tabler-logout h-full w-full text-purple-200 " />
+            </button>
         </div>
-        <button
-            class="grow bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-r h-full"
-            on:click={connectWithTwitch}
-        >
-            Conectar con twitch
-        </button>
-    </div>
+    {:else}
+        <div class="flex grow items-center bg-purple-800 rounded-2">
+            <button
+                class="grow bg-purple-900 hover:bg-purple-800 text-white font-bold rounded h-full"
+                on:click={connectWithTwitch}
+            >
+                Conectar con twitch
+            </button>
+            <div class="h-16 w-16 rounded-2 p-4">
+                <i
+                    class="i-tabler-brand-twitch h-full w-full text-purple-200 "
+                />
+            </div>
+        </div>
+    {/if}
     <div
         class=" md:col-span-2 h-full flex gap-20 items-center bg-gray-900 p-4 rounded-2"
     >

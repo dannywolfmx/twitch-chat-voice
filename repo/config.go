@@ -50,6 +50,10 @@ func (r *repoConfigFile) GetClientID() (string, error) {
 	return r.config.ClientID, nil
 }
 
+func (r *repoConfigFile) GetConfig() *Config {
+	return r.config
+}
+
 func (r *repoConfigFile) GetLang() string {
 	if r.config.Lang == "" {
 		return DEFAULT_LANG

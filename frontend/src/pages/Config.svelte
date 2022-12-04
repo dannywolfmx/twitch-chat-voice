@@ -3,11 +3,11 @@
     import { EventsEmit } from "../../wailsjs/runtime";
     import Loggin from "../components/config/Loggin.svelte";
     import Config from "../components/config/Config.svelte";
-    import { logged } from "../store/config";
+    import { IsLogged } from "../store/config";
 
     let isLogged;
 
-    logged.subscribe((r) => {
+    IsLogged.subscribe((r) => {
         isLogged = r;
     });
 
