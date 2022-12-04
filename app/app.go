@@ -51,8 +51,9 @@ func (a *MainApp) Run(assets fs.FS) error {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        a.startup,
 		OnDomReady:       a.domready,
-		Bind: []interface{}{
+		Bind: []any{
 			a,
+			a.Player,
 		},
 	})
 }
@@ -142,19 +143,6 @@ func (a *MainApp) startup(ctx context.Context) {
 		fmt.Println(m)
 		go a.Player.Add(m)
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
-	})
-
-	//GUI Events
-	runtime.EventsOn(ctx, "OnNext", func(optionalData ...interface{}) {
-		a.Player.Next()
-	})
-
-	runtime.EventsOn(ctx, "OnPause", func(optionalData ...interface{}) {
-		a.Player.Pause()
-	})
-
-	runtime.EventsOn(ctx, "OnResume", func(optionalData ...interface{}) {
-		a.Player.Continue()
 	})
 
 	runtime.EventsOn(ctx, "ConnectWithTwitch", func(optionalData ...interface{}) {

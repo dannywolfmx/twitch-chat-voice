@@ -1,21 +1,24 @@
 <script>
-    import { EventsEmit } from "../../wailsjs/runtime";
+    import { Continue, Next, Pause } from "../../wailsjs/go/tts/TTS";
 
     let pauseState = false;
 
     function resumeEvent() {
-        EventsEmit("OnResume");
-        pauseState = false;
+        Continue().then(() => {
+            pauseState = false;
+        });
     }
 
     function pauseEvent() {
-        EventsEmit("OnPause");
-        pauseState = true;
+        Pause().then(() => {
+            pauseState = true;
+        });
     }
 
     function nextEvent() {
-        EventsEmit("OnNext");
-        pauseState = false;
+        Next().then(() => {
+            pauseState = false;
+        });
     }
 </script>
 
