@@ -1,12 +1,14 @@
 <script>
     import { onMount } from "svelte";
-    import { EventsOn, EventsEmit } from "../../wailsjs/runtime";
+    import { EventsEmit } from "../../wailsjs/runtime";
     import Loggin from "../components/config/Loggin.svelte";
     import Config from "../components/config/Config.svelte";
-    let logged = false;
+    import { logged } from "../store/config";
 
-    EventsOn("IsLoggedIn", (data) => {
-        logged = data;
+    let isLogged;
+
+    logged.subscribe((r) => {
+        isLogged = r;
     });
 
     onMount(() => {
@@ -15,7 +17,7 @@
 </script>
 
 <div class="w-full h-full grow m-auto overflow-scroll">
-    {#if logged}
+    {#if isLogged}
         <Config />
     {:else}
         <Loggin />

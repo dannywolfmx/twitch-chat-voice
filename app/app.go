@@ -170,6 +170,10 @@ func (a *MainApp) startup(ctx context.Context) {
 
 }
 
+func (a *MainApp) IsLoggedIn() bool {
+	return a.RepoConfig.GetTwitchToken() != "" || a.RepoConfig.GetAnonymousUsername() != ""
+}
+
 func (a *MainApp) domready(ctx context.Context) {
 	username := a.RepoConfig.GetAnonymousUsername()
 	if username != "" {
