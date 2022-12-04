@@ -15,6 +15,7 @@
     };
 
     EventsOn("OnNewMessage", (data) => {
+        console.log(data);
         let message = {
             text: data.Message,
             user: data.User.Name,
