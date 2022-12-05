@@ -10,15 +10,29 @@ import (
 const DEFAULT_LANG string = "en"
 
 type Config struct {
-	ClientID      string        `json:"clientID"`
+	ClientID      string        `json:"client_id"`
 	Lang          string        `json:"lang"`
-	TwitchUser    TwitchUser    `json:"twitchUser"`
-	AnonymousUser AnonymousUser `json:"anonymousUser"`
+	TwitchInfo    TwitchInfo    `json:"twitch_info"`
+	AnonymousUser AnonymousUser `json:"anonymous_user"`
+}
+
+type TwitchInfo struct {
+	Token      string     `json:"token"`
+	TwitchUser TwitchUser `json:"twitch_user"`
 }
 
 type TwitchUser struct {
-	Username string `json:"username"`
-	Token    string `json:"token"`
+	ID              string `json:"id"`
+	BroadcasterType string `json:"broadcaster_type"`
+	CreatedAt       string `json:"created_at"`
+	Description     string `json:"description"`
+	DisplayName     string `json:"display_name"`
+	Email           string `json:"email"`
+	Login           string `json:"login"`
+	ProfileImageURL string `json:"profile_image_url"`
+	OfflineImageURL string `json:"offline_image_url"`
+	ViewCount       int    `json:"view_count"`
+	Type            string `json:"type"`
 }
 
 type AnonymousUser struct {
@@ -71,7 +85,7 @@ func (r *repoConfigFile) GetLang() string {
 }
 
 func (r *repoConfigFile) GetTwitchToken() string {
-	return r.config.TwitchUser.Token
+	return r.config.TwitchInfo.Token
 }
 
 func getConfig(filename string) (*Config, error) {
@@ -107,8 +121,7 @@ func (r *repoConfigFile) SaveLang(lang string) error {
 	return r.save()
 }
 
-func (r *repoConfigFile) SaveTwitchUser(username, token string) error {
-	r.config.TwitchUser.Username = username
-	r.config.TwitchUser.Token = token
+func (r *repoConfigFile) SaveTwitchInfo(info TwitchInfo) error {
+	r.config.TwitchInfo = info
 	return r.save()
 }

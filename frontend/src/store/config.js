@@ -1,5 +1,5 @@
 import { writable } from "svelte/store"
-import { GetConfig, SaveTwitchUser, SaveAnonymousUsername } from "../../wailsjs/go/repo/repoConfigFile"
+import { GetConfig, SaveTwitchInfo, SaveAnonymousUsername } from "../../wailsjs/go/repo/repoConfigFile"
 import { ConnectWithTwitch } from "../../wailsjs/go/app/ConnectWithTwitch"
 import { repo } from "../../wailsjs/go/models"
 
@@ -14,7 +14,7 @@ export const Logout = () => {
 
   Promise.all([
     SaveAnonymousUsername(""),
-    SaveTwitchUser("", ""),
+    SaveTwitchInfo(new repo.TwitchInfo()),
   ]).then(() => {
     refreshConfig()
   })
@@ -22,7 +22,6 @@ export const Logout = () => {
 
 export const ConnectAnonymous = (username) => {
   SaveAnonymousUsername(username).then(() => {
-    console.log("Prueba")
     refreshConfig()
   })
 }
@@ -40,11 +39,11 @@ export const ConnectTwitch = () => {
 function refreshConfig() {
   GetConfig().then(r => {
     //check if the user is logged
-    IsLogged.update(() => isLoggedIn(r.twitchUser))
+    IsLogged.update(() => isLoggedIn(r.twitch_info))
     Config.update(() => r)
   })
 }
 
-function isLoggedIn({ username, token }) {
-  return username != "" || token != ""
+function isLoggedIn({ token }) {
+  return token != ""
 }

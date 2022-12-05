@@ -16,4 +16,4 @@ export function SaveAnonymousUsername(arg1:string):Promise<Error>;
 
 export function SaveLang(arg1:string):Promise<Error>;
 
-export function SaveTwitchUser(arg1:string,arg2:string):Promise<Error>;
+export function SaveTwitchInfo(arg1:repo.TwitchInfo):Promise<Error>;

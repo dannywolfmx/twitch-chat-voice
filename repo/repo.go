@@ -8,5 +8,5 @@ type RepoConfig interface {
 	GetTwitchToken() string
 	SaveAnonymousUsername(username string) error
 	SaveLang(lang string) error
-	SaveTwitchUser(username, token string) error
+	SaveTwitchInfo(twitchInfo TwitchInfo) error
 }

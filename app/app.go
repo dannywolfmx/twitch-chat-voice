@@ -3,9 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"image"
 	"io"
 	"io/fs"
 	"log"
@@ -42,7 +40,7 @@ func (a *MainApp) Run(assets fs.FS) error {
 
 	c := &ConnectWithTwitch{
 		Auth:               a.Auth,
-		SaveTwitchUserinfo: a.RepoConfig.SaveTwitchUser,
+		SaveTwitchUserinfo: a.RepoConfig.SaveTwitchInfo,
 		clientID:           clientID,
 	}
 
@@ -76,53 +74,6 @@ func (a *MainApp) Run(assets fs.FS) error {
 func (a *MainApp) Stop() {
 	a.Client.Disconnect()
 	a.Player.Stop()
-}
-
-func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {
-	if bearer == "" {
-		return nil, errors.New("Empty bearer token")
-	}
-	url := fmt.Sprintf("https://api.twitch.tv/helix/users?login=%s", username)
-
-	client := http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header = http.Header{
-		"Authorization": {fmt.Sprintf("Bearer %s", bearer)},
-		"Client-Id":     {client_id},
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	buff, err := io.ReadAll(res.Body)
-	defer res.Body.Close()
-
-	userInfo := &TwitchUserInfo{}
-	err = json.Unmarshal(buff, userInfo)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(userInfo.Data) != 1 {
-		return nil, errors.New("No image")
-	}
-
-	res, err = http.Get(userInfo.Data[0].Image)
-	if err != nil {
-		return nil, err
-	}
-
-	img, _, err := image.Decode(res.Body)
-	defer res.Body.Close()
-
-	return img, err
 }
 
 type TwitchUserInfo struct {
@@ -184,8 +135,12 @@ func (a *MainApp) domready(ctx context.Context) {
 
 type ConnectWithTwitch struct {
 	Auth               oauth.Oauth
-	SaveTwitchUserinfo func(username, token string) error
+	SaveTwitchUserinfo func(info repo.TwitchInfo) error
 	clientID           string
+}
+
+type getDataTwitch struct {
+	Data []repo.TwitchUser `json:"data"`
 }
 
 func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
@@ -195,16 +150,35 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 		return false
 	}
 
-	username, err := GetTwitchUsername(token, c.clientID)
+	rawUserInfo, err := GetTwitchUserInfo(token, c.clientID)
 
 	if err != nil {
 		log.Println(err)
 		return false
 	}
 
-	fmt.Println(username)
+	twitchData := getDataTwitch{}
 
-	if err = c.SaveTwitchUserinfo(username, token); err != nil {
+	fmt.Println(string(rawUserInfo))
+
+	err = json.Unmarshal(rawUserInfo, &twitchData)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	fmt.Println("largo: ", len(twitchData.Data))
+	if len(twitchData.Data) == 0 {
+		return false
+	}
+
+	userInfo := repo.TwitchInfo{
+		Token:      token,
+		TwitchUser: twitchData.Data[0],
+	}
+
+	if err = c.SaveTwitchUserinfo(userInfo); err != nil {
 		log.Println(err)
 		return false
 	}
@@ -212,12 +186,12 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 	return true
 }
 
-func GetTwitchUsername(token, clientID string) (string, error) {
+func GetTwitchUserInfo(token, clientID string) ([]byte, error) {
 
 	request, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users", nil)
 
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
 
 	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
@@ -228,15 +202,15 @@ func GetTwitchUsername(token, clientID string) (string, error) {
 	response, err := client.Do(request)
 
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
 
 	body, err := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
 
-	return string(body), nil
+	return body, nil
 }

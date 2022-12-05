@@ -30,6 +30,6 @@ export function SaveLang(arg1) {
   return window['go']['repo']['repoConfigFile']['SaveLang'](arg1);
 }
 
-export function SaveTwitchUser(arg1, arg2) {
-  return window['go']['repo']['repoConfigFile']['SaveTwitchUser'](arg1, arg2);
+export function SaveTwitchInfo(arg1) {
+  return window['go']['repo']['repoConfigFile']['SaveTwitchInfo'](arg1);
 }
