@@ -34,10 +34,18 @@ type MainApp struct {
 }
 
 func (a *MainApp) Run(assets fs.FS) error {
-	c := &ConnectWithTwitch{
-		Auth:            a.Auth,
-		SaveTwitchToken: a.RepoConfig.SaveTwitchToken,
+	clientID, err := a.RepoConfig.GetClientID()
+
+	if err != nil {
+		return err
 	}
+
+	c := &ConnectWithTwitch{
+		Auth:               a.Auth,
+		SaveTwitchUserinfo: a.RepoConfig.SaveTwitchUser,
+		clientID:           clientID,
+	}
+
 	go func() {
 		//Connect to the IRC twitch chat
 		// warning the connect function is thread blocking
@@ -151,9 +159,6 @@ func (a *MainApp) startup(ctx context.Context) {
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
 	})
 
-	runtime.EventsOn(ctx, "ConnectWithTwitch", func(optionalData ...interface{}) {
-	})
-
 	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
 		if len(data) > 0 {
 			username := data[0].(string)
@@ -178,8 +183,9 @@ func (a *MainApp) domready(ctx context.Context) {
 }
 
 type ConnectWithTwitch struct {
-	Auth            oauth.Oauth
-	SaveTwitchToken func(token string) error
+	Auth               oauth.Oauth
+	SaveTwitchUserinfo func(username, token string) error
+	clientID           string
 }
 
 func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
@@ -189,12 +195,48 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 		return false
 	}
 
-	err = c.SaveTwitchToken(token)
+	username, err := GetTwitchUsername(token, c.clientID)
 
 	if err != nil {
 		log.Println(err)
 		return false
 	}
 
+	fmt.Println(username)
+
+	if err = c.SaveTwitchUserinfo(username, token); err != nil {
+		log.Println(err)
+		return false
+	}
+
 	return true
+}
+
+func GetTwitchUsername(token, clientID string) (string, error) {
+
+	request, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users", nil)
+
+	if err != nil {
+		return "", nil
+	}
+
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Set("Client-Id", clientID)
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+
+	if err != nil {
+		return "", nil
+	}
+
+	body, err := io.ReadAll(response.Body)
+	defer response.Body.Close()
+
+	if err != nil {
+		return "", nil
+	}
+
+	return string(body), nil
 }

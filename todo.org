@@ -1,5 +1,3 @@
 #+title: Todo
 
-* TODO DB para guardar sesion de un usuario.
-** DONE Repo of the configuration
-** TODO disconnect user from the current session
+** TODO Create structure to get the user name from the twitch api
