@@ -6,6 +6,7 @@ type RepoConfig interface {
 	GetConfig() *Config
 	GetLang() string
 	GetTwitchToken() string
+	GetTwitchUserInfo() TwitchUser
 	SaveAnonymousUsername(username string) error
 	SaveLang(lang string) error
 	SaveTwitchInfo(twitchInfo TwitchInfo) error

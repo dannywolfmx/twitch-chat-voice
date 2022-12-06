@@ -127,9 +127,10 @@ func (a *MainApp) startup(ctx context.Context) {
 }
 
 func (a *MainApp) domready(ctx context.Context) {
-	username := a.RepoConfig.GetAnonymousUsername()
-	if username != "" {
-		a.Client.Join(username)
+	userInfo := a.RepoConfig.GetTwitchUserInfo()
+
+	if userInfo.Login != "" {
+		a.Client.Join(userInfo.Login)
 	}
 }
 
@@ -159,8 +160,6 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 
 	twitchData := getDataTwitch{}
 
-	fmt.Println(string(rawUserInfo))
-
 	err = json.Unmarshal(rawUserInfo, &twitchData)
 
 	if err != nil {
@@ -168,7 +167,6 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 		return false
 	}
 
-	fmt.Println("largo: ", len(twitchData.Data))
 	if len(twitchData.Data) == 0 {
 		return false
 	}

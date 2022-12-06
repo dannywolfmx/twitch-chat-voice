@@ -12,6 +12,8 @@ export function GetLang():Promise<string>;
 
 export function GetTwitchToken():Promise<string>;
 
+export function GetTwitchUserInfo():Promise<repo.TwitchUser>;
+
 export function SaveAnonymousUsername(arg1:string):Promise<Error>;
 
 export function SaveLang(arg1:string):Promise<Error>;

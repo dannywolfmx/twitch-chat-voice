@@ -22,6 +22,10 @@ export function GetTwitchToken() {
   return window['go']['repo']['repoConfigFile']['GetTwitchToken']();
 }
 
+export function GetTwitchUserInfo() {
+  return window['go']['repo']['repoConfigFile']['GetTwitchUserInfo']();
+}
+
 export function SaveAnonymousUsername(arg1) {
   return window['go']['repo']['repoConfigFile']['SaveAnonymousUsername'](arg1);
 }

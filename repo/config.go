@@ -84,6 +84,10 @@ func (r *repoConfigFile) GetLang() string {
 	return r.config.Lang
 }
 
+func (r *repoConfigFile) GetTwitchUserInfo() TwitchUser {
+	return r.config.TwitchInfo.TwitchUser
+}
+
 func (r *repoConfigFile) GetTwitchToken() string {
 	return r.config.TwitchInfo.Token
 }

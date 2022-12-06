@@ -3,12 +3,12 @@
 
     import { Config, Logout } from "../../store/config";
 
-    let username = "";
+    let display_name = "";
     let isLoggedToTwitch = false;
 
     Config.subscribe((c) => {
-        username = c.username;
-        isLoggedToTwitch = c.clientID != "";
+        display_name = c.twitch_info.twitch_user.display_name;
+        isLoggedToTwitch = c.client_id != "";
     });
 
     function connectWithTwitch() {
@@ -34,7 +34,7 @@
             <div
                 class="grow bg-purple-900 text-white font-bold rounded flex justify-center h-full items-center"
             >
-                {username}
+                {display_name}
             </div>
             <button
                 class="h-16 w-16 rounded-2 p-4 hover:bg-purple-900"
