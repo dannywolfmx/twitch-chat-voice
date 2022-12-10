@@ -42,6 +42,7 @@ func (a *MainApp) Run(assets fs.FS) error {
 		Auth:               a.Auth,
 		SaveTwitchUserinfo: a.RepoConfig.SaveTwitchInfo,
 		clientID:           clientID,
+		JoinToChat:         a.Client.Join,
 	}
 
 	go func() {
@@ -137,6 +138,7 @@ func (a *MainApp) domready(ctx context.Context) {
 type ConnectWithTwitch struct {
 	Auth               oauth.Oauth
 	SaveTwitchUserinfo func(info repo.TwitchInfo) error
+	JoinToChat         func(channels ...string)
 	clientID           string
 }
 
@@ -171,15 +173,19 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 		return false
 	}
 
+	userData := twitchData.Data[0]
+
 	userInfo := repo.TwitchInfo{
 		Token:      token,
-		TwitchUser: twitchData.Data[0],
+		TwitchUser: userData,
 	}
 
 	if err = c.SaveTwitchUserinfo(userInfo); err != nil {
 		log.Println(err)
 		return false
 	}
+
+	c.JoinToChat(userData.Login)
 
 	return true
 }
