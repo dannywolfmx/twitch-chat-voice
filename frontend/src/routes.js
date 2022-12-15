@@ -1,8 +1,8 @@
 import Config from "./pages/Config.svelte";
-import Main from "./pages/Main.svelte";
+import Chats from "./pages/Chats.svelte";
 
 
 export default {
-  "Main": Main,
+  "Chats": Chats,
   "Config": Config,
 };

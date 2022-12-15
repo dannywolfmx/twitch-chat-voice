@@ -1,5 +1,4 @@
 <script>
-    import Navbar from "./components/Navbar.svelte";
     import routes from "./routes";
     import { EventsOn } from "../wailsjs/runtime";
 
@@ -7,7 +6,7 @@
         console.log(text);
     });
 
-    let selectedPage = "Config";
+    let selectedPage = "Chats";
 
     let renderPage = routes[selectedPage];
 
@@ -16,5 +15,4 @@
 
 <main class="bg-gray-800 h-screen flex-col flex">
     <svelte:component this={renderPage} />
-    <Navbar bind:selectedPage />
 </main>
