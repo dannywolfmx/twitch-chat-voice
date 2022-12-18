@@ -14,7 +14,7 @@
 
         const name = accountInfo.twitch_user.display_name;
 
-        tabs = new Array(name);
+        tabs = new Array(name, "illojuan", "prueba");
     });
 
     const closeTab = (e) => {

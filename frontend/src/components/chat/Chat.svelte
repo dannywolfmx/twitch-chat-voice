@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { EventsOn } from "../../../wailsjs/runtime";
     import { afterUpdate } from "svelte";
 

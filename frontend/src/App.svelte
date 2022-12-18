@@ -1,5 +1,5 @@
-<script>
-    import routes from "./routes";
+<script lang="ts">
+    import routes from "./route";
     import { EventsOn } from "../wailsjs/runtime";
 
     EventsOn("saludo", (text) => {
