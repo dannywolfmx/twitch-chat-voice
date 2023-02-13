@@ -6,7 +6,7 @@ require (
 	github.com/dannywolfmx/go-tts v0.2.5
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/toqueteos/webbrowser v1.2.0
-	github.com/wailsapp/wails/v2 v2.0.0
+	github.com/wailsapp/wails/v2 v2.3.1
 )
 
 require (
@@ -24,7 +24,6 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -40,6 +39,8 @@ require (
 	github.com/hajimehoshi/go-mp3 v0.3.3 // indirect
 	github.com/hajimehoshi/oto/v2 v2.3.1 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
+	github.com/samber/lo v1.27.1 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.0.0 => /home/daniel/workspace/go/pkg/mod

@@ -18,9 +18,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-var (
-	config = make(chan struct{})
-)
+var config = make(chan struct{})
 
 type MainApp struct {
 	Auth       oauth.Oauth
@@ -56,9 +54,9 @@ func (a *MainApp) Run(assets fs.FS) error {
 
 	// Create application with options
 	return wails.Run(&options.App{
-		Title:            "myproject",
-		Width:            1024,
-		Height:           768,
+		Title:            "Chat to voice",
+		Width:            400,
+		Height:           500,
 		Assets:           assets,
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        a.startup,
