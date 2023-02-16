@@ -17,8 +17,15 @@
         tabs = new Array(name, "illojuan", "prueba");
     });
 
+    //closeTab will find and delete the tab who triggered the event
+    // it will manipulate find and delete the element form the tabs array
     const closeTab = (e) => {
-        console.log(e.detail.id);
+        let index = e.detail.id;
+
+        if (index < 0) return;
+
+        tabs.splice(index, 1);
+        tabs = [...tabs];
     };
 </script>
 

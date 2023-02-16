@@ -1,9 +1,14 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    const dispatch = createEventDispatcher();
+
+    //ID of the account related to the tab
     export let id = -1;
+
+    //Account name of the chat tab
     export let account = "";
 
+    const dispatch = createEventDispatcher();
+    //close dispatch a account struct
     const close = () => {
         dispatch("close", {
             id: id,
