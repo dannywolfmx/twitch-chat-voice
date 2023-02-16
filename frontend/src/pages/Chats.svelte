@@ -6,8 +6,12 @@
 
     let tabs = new Array();
 
-    Config.subscribe((config) => {
-        const accountInfo = config.twitch_info;
+    Config.subscribe((configs) => {
+        let len = configs.length;
+
+        if (len == 0) return;
+
+        const accountInfo = configs[0].twitch_info;
         if (accountInfo == undefined) {
             return;
         }
