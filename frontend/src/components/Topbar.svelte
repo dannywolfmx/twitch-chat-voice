@@ -1,17 +1,20 @@
 <script>
     import Tab from "./tabs/Tab.svelte";
 
+    import { createEventDispatcher } from "svelte";
     export let tabs = [];
 
-    //closeTab will find and delete the tab who triggered the event
-    // it will manipulate find and delete the element form the tabs array
-    const closeTab = (e) => {
-        let index = e.detail.id;
+    const dispatch = createEventDispatcher();
+    //close dispatch a account struct
+    const add = () => {
+        let name = prompt("Nombre del canal", "");
 
-        if (index < 0) return;
-
-        tabs.splice(index, 1);
-        tabs = [...tabs];
+        if (name == null || name == "") {
+            return;
+        }
+        dispatch("add", {
+            name,
+        });
     };
 </script>
 
@@ -24,6 +27,7 @@
     >
         <button
             class="rounded-2 hover:bg-gray-700 h-6 w-6 p-1.1 flex flex-col justify-center items-center"
+            on:click={add}
         >
             <i class="i-tabler-plus text-purple-200 h-full w-full" />
         </button>

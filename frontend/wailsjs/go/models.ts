@@ -12,6 +12,18 @@ export namespace repo {
 	        this.username = source["username"];
 	    }
 	}
+	export class Chat {
+	    name_channel: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Chat(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name_channel = source["name_channel"];
+	    }
+	}
 	export class TwitchUser {
 	    id: string;
 	    broadcaster_type: string;
@@ -81,6 +93,7 @@ export namespace repo {
 	    lang: string;
 	    twitch_info: TwitchInfo;
 	    anonymous_user: AnonymousUser;
+	    chats: Chat[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -92,6 +105,7 @@ export namespace repo {
 	        this.lang = source["lang"];
 	        this.twitch_info = this.convertValues(source["twitch_info"], TwitchInfo);
 	        this.anonymous_user = this.convertValues(source["anonymous_user"], AnonymousUser);
+	        this.chats = this.convertValues(source["chats"], Chat);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

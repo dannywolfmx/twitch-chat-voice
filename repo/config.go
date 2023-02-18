@@ -14,6 +14,11 @@ type Config struct {
 	Lang          string        `json:"lang"`
 	TwitchInfo    TwitchInfo    `json:"twitch_info"`
 	AnonymousUser AnonymousUser `json:"anonymous_user"`
+	Chats         []Chat        `json:"chats"`
+}
+
+type Chat struct {
+	NameChannel string `json:"name_channel"`
 }
 
 type TwitchInfo struct {
@@ -62,6 +67,15 @@ func NewRepoConfigFile(filename string) (*repoConfigFile, error) {
 	}, nil
 }
 
+func (r *repoConfigFile) AddChat(chat *Chat) error {
+	if chat == nil {
+		return errors.New("nil chat reference")
+	}
+	r.config.Chats = append(r.config.Chats, *chat)
+
+	return r.save()
+}
+
 func (r *repoConfigFile) GetAnonymousUsername() string {
 	return r.config.AnonymousUser.Username
 }
@@ -75,6 +89,10 @@ func (r *repoConfigFile) GetClientID() (string, error) {
 
 func (r *repoConfigFile) GetConfig() *Config {
 	return r.config
+}
+
+func (r *repoConfigFile) GetChats() []Chat {
+	return r.config.Chats
 }
 
 func (r *repoConfigFile) GetLang() string {
@@ -113,6 +131,20 @@ func (r *repoConfigFile) save() error {
 	}
 
 	return os.WriteFile(r.filename, buff, r.fileMode)
+}
+
+func (r *repoConfigFile) RemoveChat(nameChannel string) error {
+	if len(r.config.Chats) == 0 {
+		return errors.New("no elements on the chats list")
+	}
+	for i, chat := range r.config.Chats {
+		if chat.NameChannel == nameChannel {
+			r.config.Chats = append(r.config.Chats[:i], r.config.Chats[i+1:]...)
+			return r.save()
+		}
+	}
+
+	return errors.New("missing channel name")
 }
 
 func (r *repoConfigFile) SaveAnonymousUsername(username string) error {
