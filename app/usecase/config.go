@@ -72,6 +72,7 @@ func (c *config) GetTwitchUserInfo() model.TwitchUser {
 }
 
 func (c *config) RemoveChat(nameChannel string) error {
+	c.client.Depart(nameChannel)
 	return c.repository.RemoveChat(nameChannel)
 }
 
