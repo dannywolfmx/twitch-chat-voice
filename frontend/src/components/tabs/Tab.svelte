@@ -19,6 +19,7 @@
 
 <div
     class="bg-gray-800 h-12 w-50 rounded-2 flex flex justify-center items-center p-2"
+    on:click
 >
     <p class="text-purple-200 grow text-center">{account}</p>
     <button

@@ -1,4 +1,5 @@
 <script>
+    import { EventsOn } from "../../wailsjs/runtime";
     import { Config } from "../store/config";
     import Chat from "../components/chat/Chat.svelte";
     import Navbar from "../components/Navbar.svelte";
@@ -11,6 +12,9 @@
     import { model } from "../../wailsjs/go/models";
 
     let tabs = new Array();
+    let chats = new Map();
+    let selectedTab = "";
+    let messages = [];
 
     Config.subscribe((configs) => {
         if (configs.length == 0) return;
@@ -25,9 +29,16 @@
     });
 
     const refreshTabs = () => {
-        GetChats().then((chats) => {
-            if (chats != null) {
-                tabs = chats.map((r) => r.name_channel);
+        GetChats().then((c) => {
+            if (c != null) {
+                tabs = c.map((r) => {
+                    r.name_channel;
+                    if (!chats.has(r.name_channel)) {
+                        chats.set(r.name_channel, []);
+                    }
+
+                    return r.name_channel;
+                });
             }
         });
     };
@@ -40,22 +51,50 @@
         if (index < 0) return;
 
         RemoveChat(tabs[index]).then(() => {
-            console.log(tabs[index]);
             refreshTabs();
         });
     };
 
     const addTab = (e) => {
         let chat = new model.Chat();
-        chat.name_channel = e.detail.name;
+        selectedTab = e.detail.name;
+        chat.name_channel = selectedTab;
+
         AddChat(chat).then(refreshTabs);
+
+        console.log(selectedTab);
+        chats.set(selectedTab, []);
+        messages = [...chats.get(selectedTab)];
     };
 
     refreshTabs();
+
+    EventsOn("OnNewMessage", (data) => {
+        let message = {
+            text: data.Message,
+            user: data.User.Name,
+            color: data.User.Color,
+        };
+        console.log(data.Channel);
+        chats.get(data.Channel).push(message);
+
+        if (selectedTab == data.Channel) {
+            messages = [...chats.get(selectedTab)];
+        }
+    });
+
+    const updateSelectedTab = (e) => {
+        selectedTab = e.detail.tab;
+    };
 </script>
 
 <div class="h-full flex flex-col">
-    <Topbar {tabs} on:close={closeTab} on:add={addTab} />
-    <Chat />
+    <Topbar
+        {tabs}
+        on:close={closeTab}
+        on:add={addTab}
+        on:selectedTab={updateSelectedTab}
+    />
+    <Chat {messages} />
     <Navbar />
 </div>

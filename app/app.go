@@ -94,7 +94,7 @@ func (a *MainApp) startup(ctx context.Context) {
 	a.ctx = ctx
 
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		//Don't repeat the las name
+		//Prevent the tts repeat the las name
 		user := message.User.Name
 		m := ""
 		if lastUser == user {
@@ -103,7 +103,6 @@ func (a *MainApp) startup(ctx context.Context) {
 			lastUser = user
 			m = fmt.Sprintf("%s ha dicho %s", user, message.Message)
 		}
-		fmt.Println(m)
 		go a.Player.Add(m)
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
 	})

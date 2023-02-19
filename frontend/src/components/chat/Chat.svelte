@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { EventsOn } from "../../../wailsjs/runtime";
     import { afterUpdate } from "svelte";
 
-    let messages = [];
+    export let selectedTab = 0;
+    export let messages = [];
 
     let element;
 
@@ -13,15 +13,6 @@
     const scrollToBottom = async (node) => {
         node.scroll({ top: node.scrollHeight, behavior: "smooth" });
     };
-
-    EventsOn("OnNewMessage", (data) => {
-        let message = {
-            text: data.Message,
-            user: data.User.Name,
-            color: data.User.Color,
-        };
-        messages = [...messages, message];
-    });
 </script>
 
 <div class="grow sm:p-8 p-2 overflow-hidden scroll-smooth ">
