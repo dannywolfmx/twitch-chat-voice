@@ -14,6 +14,7 @@
     let tabs = new Array();
     let chats = new Map();
     let selectedTab = "";
+    let preSelectedTab = "";
     let messages = [];
 
     Config.subscribe((configs) => {
@@ -53,10 +54,15 @@
         RemoveChat(tabs[index]).then(() => {
             refreshTabs();
         });
+
+        if (chats.has(selectedTab)) {
+            messages = [...chats.get(selectedTab)];
+        }
     };
 
     const addTab = (e) => {
         let chat = new model.Chat();
+        preSelectedTab = selectedTab;
         selectedTab = e.detail.name;
         chat.name_channel = selectedTab;
 
@@ -75,16 +81,19 @@
             user: data.User.Name,
             color: data.User.Color,
         };
-        console.log(data.Channel);
-        chats.get(data.Channel).push(message);
-
-        if (selectedTab == data.Channel) {
-            messages = [...chats.get(selectedTab)];
+        console.log(selectedTab, data.Channel);
+        if (chats.has(data.Channel)) {
+            chats.get(data.Channel).push(message);
+            if (selectedTab == data.Channel) {
+                messages = [...chats.get(selectedTab)];
+            }
         }
     });
 
     const updateSelectedTab = (e) => {
+        preSelectedTab = selectedTab;
         selectedTab = e.detail.tab;
+        messages = [...chats.get(selectedTab)];
     };
 </script>
 
