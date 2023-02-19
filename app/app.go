@@ -10,8 +10,9 @@ import (
 	"net/http"
 
 	"github.com/dannywolfmx/go-tts/tts"
+	"github.com/dannywolfmx/twitch-chat-voice/app/usecase"
+	"github.com/dannywolfmx/twitch-chat-voice/model"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
-	"github.com/dannywolfmx/twitch-chat-voice/repo"
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -26,11 +27,11 @@ type MainApp struct {
 	Player     *tts.TTS
 	Client     *twitch.Client
 	ctx        context.Context
-	RepoConfig repo.RepoConfig
+	Config     usecase.Config
 }
 
 func (a *MainApp) Run(assets fs.FS) error {
-	clientID, err := a.RepoConfig.GetClientID()
+	clientID, err := a.Config.GetClientID()
 
 	if err != nil {
 		return err
@@ -38,7 +39,7 @@ func (a *MainApp) Run(assets fs.FS) error {
 
 	c := &ConnectWithTwitch{
 		Auth:               a.Auth,
-		SaveTwitchUserinfo: a.RepoConfig.SaveTwitchInfo,
+		SaveTwitchUserinfo: a.Config.SaveTwitchInfo,
 		clientID:           clientID,
 		JoinToChat:         a.Client.Join,
 	}
@@ -64,7 +65,7 @@ func (a *MainApp) Run(assets fs.FS) error {
 		Bind: []any{
 			a,
 			a.Player,
-			a.RepoConfig,
+			a.Config,
 			c,
 		},
 	})
@@ -112,21 +113,21 @@ func (a *MainApp) startup(ctx context.Context) {
 	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
 		if len(data) > 0 {
 			username := data[0].(string)
-			a.RepoConfig.SaveAnonymousUsername(username)
+			a.Config.SaveAnonymousUsername(username)
 			runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
 			a.Client.Join(username)
 		}
 	})
 
 	runtime.EventsOn(ctx, "OnIsLoggedIn", func(data ...interface{}) {
-		username := a.RepoConfig.GetAnonymousUsername()
+		username := a.Config.GetAnonymousUsername()
 		runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
 	})
 
 }
 
 func (a *MainApp) domready(ctx context.Context) {
-	userInfo := a.RepoConfig.GetTwitchUserInfo()
+	userInfo := a.Config.GetTwitchUserInfo()
 
 	if userInfo.Login != "" {
 		a.Client.Join(userInfo.Login)
@@ -135,13 +136,13 @@ func (a *MainApp) domready(ctx context.Context) {
 
 type ConnectWithTwitch struct {
 	Auth               oauth.Oauth
-	SaveTwitchUserinfo func(info repo.TwitchInfo) error
+	SaveTwitchUserinfo func(info model.TwitchInfo) error
 	JoinToChat         func(channels ...string)
 	clientID           string
 }
 
 type getDataTwitch struct {
-	Data []repo.TwitchUser `json:"data"`
+	Data []model.TwitchUser `json:"data"`
 }
 
 func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
@@ -173,7 +174,7 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 
 	userData := twitchData.Data[0]
 
-	userInfo := repo.TwitchInfo{
+	userInfo := model.TwitchInfo{
 		Token:      token,
 		TwitchUser: userData,
 	}

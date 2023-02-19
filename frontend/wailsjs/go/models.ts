@@ -1,4 +1,4 @@
-export namespace repo {
+export namespace model {
 	
 	export class AnonymousUser {
 	    username: string;

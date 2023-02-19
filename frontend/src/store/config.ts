@@ -1,7 +1,7 @@
 import { writable } from "svelte/store"
-import { GetConfig, SaveTwitchInfo, SaveAnonymousUsername } from "../../wailsjs/go/repo/repoConfigFile"
+import { GetConfig, SaveTwitchInfo, SaveAnonymousUsername } from "../../wailsjs/go/usecase/config"
 import { ConnectWithTwitch } from "../../wailsjs/go/app/ConnectWithTwitch"
-import { repo } from "../../wailsjs/go/models"
+import { model } from "../../wailsjs/go/models"
 
 
 export const IsLogged = writable(false)
@@ -65,9 +65,9 @@ export class Usecase<T>{
   }
 }
 
-let configRepo = new Repository<repo.Config>();
+let configRepo = new Repository<model.Config>();
 
-export const Config = new Usecase<repo.Config>(configRepo); configRepo
+export const Config = new Usecase<model.Config>(configRepo); configRepo
 
 
 export interface IRepository<T> {
@@ -84,7 +84,7 @@ export const Logout = () => {
 
   Promise.all([
     SaveAnonymousUsername(""),
-    SaveTwitchInfo(new repo.TwitchInfo()),
+    SaveTwitchInfo(new model.TwitchInfo()),
   ]).then(() => {
     refreshConfig()
   })

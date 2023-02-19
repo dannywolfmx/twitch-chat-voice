@@ -9,6 +9,7 @@ import (
 
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/app"
+	"github.com/dannywolfmx/twitch-chat-voice/app/usecase"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
 	"github.com/dannywolfmx/twitch-chat-voice/repo"
 	"github.com/gempir/go-twitch-irc/v3"
@@ -32,6 +33,8 @@ func main() {
 		panic(err)
 	}
 
+	config := usecase.NewConfig(repoConfig)
+
 	clientID, err := repoConfig.GetClientID()
 
 	if err != nil {
@@ -42,10 +45,10 @@ func main() {
 	player.Play()
 
 	a := &app.MainApp{
-		Auth:       oauth.NewTwitchOAuth(clientID),
-		Client:     twitch.NewAnonymousClient(),
-		Player:     player,
-		RepoConfig: repoConfig,
+		Auth:   oauth.NewTwitchOAuth(clientID),
+		Client: twitch.NewAnonymousClient(),
+		Player: player,
+		Config: config,
 	}
 
 	signal.Notify(quit, os.Interrupt, os.Kill)

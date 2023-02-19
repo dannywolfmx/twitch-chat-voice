@@ -7,8 +7,8 @@
         GetChats,
         RemoveChat,
         AddChat,
-    } from "../../wailsjs/go/repo/repoConfigFile";
-    import { repo } from "../../wailsjs/go/models";
+    } from "../../wailsjs/go/usecase/config";
+    import { model } from "../../wailsjs/go/models";
 
     let tabs = new Array();
 
@@ -46,7 +46,7 @@
     };
 
     const addTab = (e) => {
-        let chat = new repo.Chat();
+        let chat = new model.Chat();
         chat.name_channel = e.detail.name;
         AddChat(chat).then(refreshTabs);
     };

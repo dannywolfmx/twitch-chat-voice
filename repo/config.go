@@ -5,49 +5,16 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+
+	"github.com/dannywolfmx/twitch-chat-voice/model"
 )
 
 const DEFAULT_LANG string = "en"
 
-type Config struct {
-	ClientID      string        `json:"client_id"`
-	Lang          string        `json:"lang"`
-	TwitchInfo    TwitchInfo    `json:"twitch_info"`
-	AnonymousUser AnonymousUser `json:"anonymous_user"`
-	Chats         []Chat        `json:"chats"`
-}
-
-type Chat struct {
-	NameChannel string `json:"name_channel"`
-}
-
-type TwitchInfo struct {
-	Token      string     `json:"token"`
-	TwitchUser TwitchUser `json:"twitch_user"`
-}
-
-type TwitchUser struct {
-	ID              string `json:"id"`
-	BroadcasterType string `json:"broadcaster_type"`
-	CreatedAt       string `json:"created_at"`
-	Description     string `json:"description"`
-	DisplayName     string `json:"display_name"`
-	Email           string `json:"email"`
-	Login           string `json:"login"`
-	ProfileImageURL string `json:"profile_image_url"`
-	OfflineImageURL string `json:"offline_image_url"`
-	ViewCount       int    `json:"view_count"`
-	Type            string `json:"type"`
-}
-
-type AnonymousUser struct {
-	Username string `json:"username"`
-}
-
 type repoConfigFile struct {
 	filename string
 	fileMode fs.FileMode
-	config   *Config
+	config   *model.Config
 }
 
 func NewRepoConfigFile(filename string) (*repoConfigFile, error) {
@@ -57,7 +24,7 @@ func NewRepoConfigFile(filename string) (*repoConfigFile, error) {
 		if !os.IsNotExist(err) {
 			return nil, err
 		}
-		config = &Config{}
+		config = &model.Config{}
 	}
 
 	return &repoConfigFile{
@@ -67,7 +34,7 @@ func NewRepoConfigFile(filename string) (*repoConfigFile, error) {
 	}, nil
 }
 
-func (r *repoConfigFile) AddChat(chat *Chat) error {
+func (r *repoConfigFile) AddChat(chat *model.Chat) error {
 	if chat == nil {
 		return errors.New("nil chat reference")
 	}
@@ -87,11 +54,11 @@ func (r *repoConfigFile) GetClientID() (string, error) {
 	return r.config.ClientID, nil
 }
 
-func (r *repoConfigFile) GetConfig() *Config {
+func (r *repoConfigFile) GetConfig() *model.Config {
 	return r.config
 }
 
-func (r *repoConfigFile) GetChats() []Chat {
+func (r *repoConfigFile) GetChats() []model.Chat {
 	return r.config.Chats
 }
 
@@ -102,7 +69,7 @@ func (r *repoConfigFile) GetLang() string {
 	return r.config.Lang
 }
 
-func (r *repoConfigFile) GetTwitchUserInfo() TwitchUser {
+func (r *repoConfigFile) GetTwitchUserInfo() model.TwitchUser {
 	return r.config.TwitchInfo.TwitchUser
 }
 
@@ -110,14 +77,14 @@ func (r *repoConfigFile) GetTwitchToken() string {
 	return r.config.TwitchInfo.Token
 }
 
-func getConfig(filename string) (*Config, error) {
+func getConfig(filename string) (*model.Config, error) {
 	buff, err := os.ReadFile(filename)
 
 	if err != nil {
 		return nil, err
 	}
 
-	c := &Config{}
+	c := &model.Config{}
 	err = json.Unmarshal(buff, c)
 
 	return c, err
@@ -157,7 +124,7 @@ func (r *repoConfigFile) SaveLang(lang string) error {
 	return r.save()
 }
 
-func (r *repoConfigFile) SaveTwitchInfo(info TwitchInfo) error {
+func (r *repoConfigFile) SaveTwitchInfo(info model.TwitchInfo) error {
 	r.config.TwitchInfo = info
 	return r.save()
 }
