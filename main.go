@@ -32,8 +32,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	config := usecase.NewConfig(repoConfig)
+	client := twitch.NewAnonymousClient()
+	config := usecase.NewConfig(repoConfig, client)
 
 	clientID, err := repoConfig.GetClientID()
 
@@ -46,7 +46,7 @@ func main() {
 
 	a := &app.MainApp{
 		Auth:   oauth.NewTwitchOAuth(clientID),
-		Client: twitch.NewAnonymousClient(),
+		Client: client,
 		Player: player,
 		Config: config,
 	}

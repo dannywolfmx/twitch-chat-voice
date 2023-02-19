@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/dannywolfmx/twitch-chat-voice/model"
 	"github.com/dannywolfmx/twitch-chat-voice/repo"
+	"github.com/gempir/go-twitch-irc/v3"
 )
 
 type Config interface {
@@ -22,15 +23,23 @@ type Config interface {
 
 type config struct {
 	repository repo.RepoConfig
+	client     *twitch.Client
 }
 
-func NewConfig(repository repo.RepoConfig) *config {
+func NewConfig(repository repo.RepoConfig, client *twitch.Client) *config {
+
+	for _, chat := range repository.GetChats() {
+		client.Join(chat.NameChannel)
+	}
+
 	return &config{
 		repository: repository,
+		client:     client,
 	}
 }
 
 func (c *config) AddChat(chat *model.Chat) error {
+	c.client.Join(chat.NameChannel)
 	return c.repository.AddChat(chat)
 }
 

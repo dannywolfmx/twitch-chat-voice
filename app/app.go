@@ -41,7 +41,6 @@ func (a *MainApp) Run(assets fs.FS) error {
 		Auth:               a.Auth,
 		SaveTwitchUserinfo: a.Config.SaveTwitchInfo,
 		clientID:           clientID,
-		JoinToChat:         a.Client.Join,
 	}
 
 	go func() {
@@ -61,7 +60,6 @@ func (a *MainApp) Run(assets fs.FS) error {
 		Assets:           assets,
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        a.startup,
-		OnDomReady:       a.domready,
 		Bind: []any{
 			a,
 			a.Player,
@@ -115,7 +113,6 @@ func (a *MainApp) startup(ctx context.Context) {
 			username := data[0].(string)
 			a.Config.SaveAnonymousUsername(username)
 			runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
-			a.Client.Join(username)
 		}
 	})
 
@@ -126,18 +123,9 @@ func (a *MainApp) startup(ctx context.Context) {
 
 }
 
-func (a *MainApp) domready(ctx context.Context) {
-	userInfo := a.Config.GetTwitchUserInfo()
-
-	if userInfo.Login != "" {
-		a.Client.Join(userInfo.Login)
-	}
-}
-
 type ConnectWithTwitch struct {
 	Auth               oauth.Oauth
 	SaveTwitchUserinfo func(info model.TwitchInfo) error
-	JoinToChat         func(channels ...string)
 	clientID           string
 }
 
@@ -183,8 +171,6 @@ func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
 		log.Println(err)
 		return false
 	}
-
-	c.JoinToChat(userData.Login)
 
 	return true
 }
