@@ -1,6 +1,6 @@
 module github.com/dannywolfmx/twitch-chat-voice
 
-go 1.18
+go 1.20
 
 require (
 	github.com/dannywolfmx/go-tts v0.2.5
