@@ -19,6 +19,10 @@ const CONFIG_FILE string = "config.json"
 
 var quit = make(chan os.Signal, 1)
 
+// Note: the dist content will be created by wails dev command, is normal if you see
+//
+//	a empty directory.
+//
 //go:embed all:frontend/dist
 var assets embed.FS
 
@@ -38,7 +42,7 @@ func main() {
 	clientID, err := repoConfig.GetClientID()
 
 	if err != nil {
-		panic(err)
+		fmt.Print("Note: you're running the program without a client id. Social integration is disabled.")
 	}
 
 	player := tts.NewTTS(repoConfig.GetLang())

@@ -31,11 +31,10 @@ type MainApp struct {
 }
 
 func (a *MainApp) Run(assets fs.FS) error {
-	clientID, err := a.Config.GetClientID()
-
-	if err != nil {
-		return err
-	}
+	//TOOD:  At the moment we will ignore the client ID,
+	// but in the future we need to work with this data
+	// for the social implementation
+	clientID, _ := a.Config.GetClientID()
 
 	c := &ConnectWithTwitch{
 		Auth:               a.Auth,
