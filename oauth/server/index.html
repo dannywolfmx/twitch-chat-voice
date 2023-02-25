@@ -1,27 +1,25 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <title>Document</title>
-    </head>
-    <body>
-        <h1 id="title">Wait a moment</h1>
-
-        <script>
-            let  u = document.location.hash.substr(1)
-            let params = new URLSearchParams(u)
-            let token = params.get("access_token")
-            window.addEventListener('load', function () {
-                fetch(`/?token=${token}`).then(r =>{
-                    console.log(r)
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1 id="title">Wait a moment</h1>
+    <script>
+            window.addEventListener('DOMContentLoaded', function () {
+                let  u = document.location.hash.substr(1)
+                let params = new URLSearchParams(u)
+                let token = params.get("access_token")
+                fetch(`/?token=${token}`,{
+                    method:'POST',
+                }).then(r =>{
                     document.getElementById("title").innerText = "Now you can close this window"
-
-                    //window.close()
+                    window.close()
                 }).catch(e =>{
                     console.log(e)
                 })
             })
-            console.log("Hola")
-        </script>
-    </body>
+    </script>
+</body>
 </html>

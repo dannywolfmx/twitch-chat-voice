@@ -1,52 +1,46 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"image"
 	"io"
+	"io/fs"
+	"log"
 	"net/http"
 
 	"github.com/dannywolfmx/go-tts/tts"
-	"github.com/dannywolfmx/twitch-chat-voice/controller"
+	"github.com/dannywolfmx/twitch-chat-voice/app/usecase"
+	"github.com/dannywolfmx/twitch-chat-voice/model"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
-	"github.com/dannywolfmx/twitch-chat-voice/route"
-	"github.com/dannywolfmx/twitch-chat-voice/view"
 	"github.com/gempir/go-twitch-irc/v3"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-var (
-	config = make(chan struct{})
-)
+var config = make(chan struct{})
 
 type MainApp struct {
 	Auth       oauth.Oauth
 	BearerToke string
-	view       view.View
 	Player     *tts.TTS
 	Client     *twitch.Client
+	ctx        context.Context
+	Config     usecase.Config
 }
 
-func (a *MainApp) events() {
-}
+func (a *MainApp) Run(assets fs.FS) error {
+	//TOOD:  At the moment we will ignore the client ID,
+	// but in the future we need to work with this data
+	// for the social implementation
+	clientID, _ := a.Config.GetClientID()
 
-const (
-	HOME_SCREEN   = "home"
-	CONFIG_SCREEN = "config"
-)
-
-func (a *MainApp) Run() error {
-	a.events()
-	config := view.ConfigView{
-		WindowSize: view.Size{
-			Width:  400,
-			Height: 736,
-		},
-		Title: "Twitch App",
+	c := &ConnectWithTwitch{
+		Auth:               a.Auth,
+		SaveTwitchUserinfo: a.Config.SaveTwitchInfo,
+		clientID:           clientID,
 	}
-
-	a.view = view.NewView(config)
 
 	go func() {
 		//Connect to the IRC twitch chat
@@ -57,85 +51,26 @@ func (a *MainApp) Run() error {
 		}
 	}()
 
-	route := route.NewRoute(a.view, true)
-	{
-		//Set home screen
-		home := controller.NewHomeController(func() error { return route.Go(CONFIG_SCREEN) },
+	// Create application with options
+	return wails.Run(&options.App{
+		Title:            "Chat to voice",
+		Width:            400,
+		Height:           500,
+		Assets:           assets,
+		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		OnStartup:        a.startup,
+		Bind: []any{
+			a,
 			a.Player,
-			a.Client,
-		)
-		route.Set(HOME_SCREEN, home)
-
-		config := controller.NewConfigController(func() { route.Go(HOME_SCREEN) },
-			a.Client,
-		)
-
-		route.Set(CONFIG_SCREEN, config)
-
-	}
-
-	route.Go(HOME_SCREEN)
-	a.view.ShowAndRun()
-
-	return nil
-}
-
-func (a *MainApp) Quit() {
-	//Close the window at the end to keep the running function until it stop
-	a.view.Quit()
+			a.Config,
+			c,
+		},
+	})
 }
 
 func (a *MainApp) Stop() {
 	a.Client.Disconnect()
 	a.Player.Stop()
-}
-
-func getTwitchUserInfo(bearer, client_id, username string) (image.Image, error) {
-	if bearer == "" {
-		return nil, errors.New("Empty bearer token")
-	}
-	url := fmt.Sprintf("https://api.twitch.tv/helix/users?login=%s", username)
-
-	client := http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header = http.Header{
-		"Authorization": {fmt.Sprintf("Bearer %s", bearer)},
-		"Client-Id":     {client_id},
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	buff, err := io.ReadAll(res.Body)
-	defer res.Body.Close()
-
-	userInfo := &TwitchUserInfo{}
-	err = json.Unmarshal(buff, userInfo)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(userInfo.Data) != 1 {
-		return nil, errors.New("No image")
-	}
-
-	res, err = http.Get(userInfo.Data[0].Image)
-	if err != nil {
-		return nil, err
-	}
-
-	img, _, err := image.Decode(res.Body)
-	defer res.Body.Close()
-
-	return img, err
-
 }
 
 type TwitchUserInfo struct {
@@ -144,4 +79,125 @@ type TwitchUserInfo struct {
 
 type SingleData struct {
 	Image string `json:"profile_image_url"`
+}
+
+type Message struct {
+	Message string `json:"Message"`
+	User    string `json:"user"`
+}
+
+// startup is called when the app starts. The context is saved
+// so we can call the runtime methods
+func (a *MainApp) startup(ctx context.Context) {
+	lastUser := ""
+	a.ctx = ctx
+
+	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		//Prevent the tts repeat the las name
+		user := message.User.Name
+		m := ""
+		if lastUser == user {
+			m = message.Message
+		} else {
+			lastUser = user
+			m = fmt.Sprintf("%s ha dicho %s", user, message.Message)
+		}
+		go a.Player.Add(m)
+		runtime.EventsEmit(ctx, "OnNewMessage", message)
+	})
+
+	runtime.EventsOn(ctx, "OnConnectAnonymous", func(data ...interface{}) {
+		if len(data) > 0 {
+			username := data[0].(string)
+			a.Config.SaveAnonymousUsername(username)
+			runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
+		}
+	})
+
+	runtime.EventsOn(ctx, "OnIsLoggedIn", func(data ...interface{}) {
+		username := a.Config.GetAnonymousUsername()
+		runtime.EventsEmit(ctx, "IsLoggedIn", username != "")
+	})
+
+}
+
+type ConnectWithTwitch struct {
+	Auth               oauth.Oauth
+	SaveTwitchUserinfo func(info model.TwitchInfo) error
+	clientID           string
+}
+
+type getDataTwitch struct {
+	Data []model.TwitchUser `json:"data"`
+}
+
+func (c *ConnectWithTwitch) ConnectWithTwitch() bool {
+	token, err := c.Auth.Connect()
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	rawUserInfo, err := GetTwitchUserInfo(token, c.clientID)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	twitchData := getDataTwitch{}
+
+	err = json.Unmarshal(rawUserInfo, &twitchData)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	if len(twitchData.Data) == 0 {
+		return false
+	}
+
+	userData := twitchData.Data[0]
+
+	userInfo := model.TwitchInfo{
+		Token:      token,
+		TwitchUser: userData,
+	}
+
+	if err = c.SaveTwitchUserinfo(userInfo); err != nil {
+		log.Println(err)
+		return false
+	}
+
+	return true
+}
+
+func GetTwitchUserInfo(token, clientID string) ([]byte, error) {
+
+	request, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Set("Client-Id", clientID)
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(response.Body)
+	defer response.Body.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }

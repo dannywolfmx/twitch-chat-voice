@@ -1,73 +1,72 @@
 package main
 
 import (
+	"embed"
 	_ "embed"
 	"fmt"
-	"image"
 	"os"
 	"os/signal"
 
 	"github.com/dannywolfmx/go-tts/tts"
 	"github.com/dannywolfmx/twitch-chat-voice/app"
+	"github.com/dannywolfmx/twitch-chat-voice/app/usecase"
 	"github.com/dannywolfmx/twitch-chat-voice/oauth"
+	"github.com/dannywolfmx/twitch-chat-voice/repo"
 	"github.com/gempir/go-twitch-irc/v3"
-	"github.com/joho/godotenv"
 )
 
-var UpdateUI = make(chan bool)
-var done = make(chan bool)
-
-var texto string
-
-var client *twitch.Client
-var player *tts.TTS
-
-var img image.Image
+const CONFIG_FILE string = "config.json"
 
 var quit = make(chan os.Signal, 1)
 
-const (
-	BEARER    = "BEARER"
-	CLIENT_ID = "CLIENT_ID"
-	TEST      = "TEST"
-)
+// Note: the dist content will be created by wails dev command, is normal if you see
+//
+//	a empty directory.
+//
+//go:embed all:frontend/dist
+var assets embed.FS
 
 type MyPlayer struct {
 	*tts.TTS
 }
 
-var bearerToken string
-
-var auth *oauth.Twitch
-
-//go:embed  .env
-var envFile string
-
 func main() {
-	envVars, err := godotenv.Unmarshal(envFile)
+	repoConfig, err := repo.NewRepoConfigFile(CONFIG_FILE)
+
 	if err != nil {
 		panic(err)
 	}
+	client := twitch.NewAnonymousClient()
+	config := usecase.NewConfig(repoConfig, client)
 
-	client_id, ok := envVars[CLIENT_ID]
-	if !ok {
-		panic(err)
+	clientID, err := repoConfig.GetClientID()
+
+	if err != nil {
+		fmt.Print("Note: you're running the program without a client id. Social integration is disabled.")
 	}
 
+	player := tts.NewTTS(repoConfig.GetLang())
+	player.Play()
+
 	a := &app.MainApp{
-		Auth:   oauth.NewTwitchOAuth(client_id),
-		Client: twitch.NewAnonymousClient(),
-		Player: tts.NewTTS("es"),
+		Auth:   oauth.NewTwitchOAuth(clientID),
+		Client: client,
+		Player: player,
+		Config: config,
 	}
 
 	signal.Notify(quit, os.Interrupt, os.Kill)
 	go func() {
 		<-quit
-		a.Quit()
+		//a.Quit()
 	}()
 
-	if err := a.Run(); err != nil {
+	if err := a.Run(assets); err != nil {
 		fmt.Println(err)
 	}
 	a.Stop()
+
+	if err != nil {
+		println("Error:", err.Error())
+	}
 }

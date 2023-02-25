@@ -1,10 +1,8 @@
 package server
 
 import (
-	"context"
 	_ "embed"
 	"net/http"
-	"time"
 )
 
 //go:embed index.html
@@ -23,9 +21,7 @@ func NewServer(port string) *Server {
 
 }
 
-func (s *Server) Run(path string) (string, error) {
-	token := ""
-
+func (s *Server) Run(path string, c chan string) error {
 	//Refresh the mux in every new Run
 	mux := http.NewServeMux()
 	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
@@ -33,19 +29,18 @@ func (s *Server) Run(path string) (string, error) {
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		token = r.URL.Query().Get("token")
-		w.WriteHeader(http.StatusOK)
-		go func() {
-			time.Sleep(time.Second * 4)
-			s.Shutdown(context.TODO())
-		}()
+		if r.Method == "POST" {
+			c <- r.URL.Query().Get("token")
+
+			w.WriteHeader(http.StatusOK)
+		}
 	})
 
 	s.Handler = mux
 
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
-		return "", err
+		return err
 	}
 
-	return token, nil
+	return nil
 }
