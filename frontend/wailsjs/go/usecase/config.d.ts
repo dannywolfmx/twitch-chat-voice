@@ -14,9 +14,13 @@ export function GetConfig():Promise<model.Config>;
 
 export function GetLang():Promise<string>;
 
+export function GetMuttedUsers():Promise<Array<string>>;
+
 export function GetTwitchToken():Promise<string>;
 
 export function GetTwitchUserInfo():Promise<model.TwitchUser>;
+
+export function IsMutted(arg1:string):Promise<boolean>;
 
 export function RemoveChat(arg1:string):Promise<void>;
 
@@ -25,3 +29,5 @@ export function SaveAnonymousUsername(arg1:string):Promise<void>;
 export function SaveLang(arg1:string):Promise<void>;
 
 export function SaveTwitchInfo(arg1:model.TwitchInfo):Promise<void>;
+
+export function ToggleMuttedUser(arg1:string):Promise<Array<string>>;

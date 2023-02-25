@@ -40,9 +40,15 @@ func (r *repoConfigFile) AddChat(chat *model.Chat) error {
 	if chat == nil {
 		return errors.New("nil chat reference")
 	}
+
 	r.config.Chats = append(r.config.Chats, *chat)
 
 	return r.save()
+}
+
+func (r *repoConfigFile) AddMuttedUser(user model.User) ([]model.User, error) {
+	r.config.MuttedUsers = append(r.config.MuttedUsers, user)
+	return r.GetMuttedUsers(), r.save()
 }
 
 func (r *repoConfigFile) GetAnonymousUsername() string {
@@ -70,6 +76,9 @@ func (r *repoConfigFile) GetLang() string {
 	}
 	return r.config.Lang
 }
+func (r *repoConfigFile) GetMuttedUsers() []model.User {
+	return r.config.MuttedUsers
+}
 
 func (r *repoConfigFile) GetTwitchUserInfo() model.TwitchUser {
 	return r.config.TwitchInfo.TwitchUser
@@ -92,16 +101,6 @@ func getConfig(filename string) (*model.Config, error) {
 	return c, err
 }
 
-func (r *repoConfigFile) save() error {
-	buff, err := json.MarshalIndent(r.config, "", "\t")
-
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(r.filename, buff, r.fileMode)
-}
-
 func (r *repoConfigFile) RemoveChat(nameChannel string) error {
 	if len(r.config.Chats) == 0 {
 		return errors.New("no elements on the chats list")
@@ -114,6 +113,29 @@ func (r *repoConfigFile) RemoveChat(nameChannel string) error {
 	}
 
 	return errors.New("missing channel name")
+}
+
+func (r *repoConfigFile) RemoveMuttedUser(user model.User) ([]model.User, error) {
+	//No a error if the list is empty
+
+	for i, userOnList := range r.config.MuttedUsers {
+		if userOnList == user {
+			r.config.MuttedUsers = append(r.config.MuttedUsers[:i], r.config.MuttedUsers[i+1:]...)
+			return r.GetMuttedUsers(), r.save()
+		}
+	}
+
+	return r.GetMuttedUsers(), nil
+}
+
+func (r *repoConfigFile) save() error {
+	buff, err := json.MarshalIndent(r.config, "", "\t")
+
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(r.filename, buff, r.fileMode)
 }
 
 func (r *repoConfigFile) SaveAnonymousUsername(username string) error {

@@ -4,9 +4,11 @@
     import Navbar from "../components/Navbar.svelte";
     import Topbar from "../components/Topbar.svelte";
     import {
-        GetChats,
-        RemoveChat,
         AddChat,
+        GetChats,
+        GetMuttedUsers,
+        RemoveChat,
+        ToggleMuttedUser,
     } from "../../wailsjs/go/usecase/config";
     import { model } from "../../wailsjs/go/models";
 
@@ -15,6 +17,7 @@
 
     let selectedTabChannel = "";
     let messages = [];
+    let muttedUsers = [];
 
     async function refreshTabs() {
         const chatsData = await GetChats();
@@ -77,7 +80,13 @@
 
     function updateSelectedTabChannel(channelName) {
         if (tabs.length == 0) {
-            messages = [];
+            messages = [
+                {
+                    user: "Chat",
+                    text: "Usa el tab de arriba para agregar algun chat",
+                    color: "black",
+                },
+            ];
             return;
         }
 
@@ -87,12 +96,25 @@
 
         selectedTabChannel = channelName;
 
-        console.log(channelName);
         messages = [...chats.get(selectedTabChannel)];
+    }
+
+    function toggleMutte(event) {
+        ToggleMuttedUser(event.detail.user).then((usersWithMutte) => {
+            muttedUsers = [...usersWithMutte];
+            if (chats.has(selectedTabChannel)) {
+                messages = [...chats.get(selectedTabChannel)];
+            }
+        });
+    }
+
+    async function getMuttedUsers() {
+        muttedUsers = await GetMuttedUsers();
     }
 
     // first time run page function
     refreshTabs();
+    getMuttedUsers();
 
     //TODO: When the topbar tab are clicked on the close button, the select event are triggered too
     // we need to just follow the close event
@@ -105,6 +127,6 @@
         on:add={addTab}
         on:selectedTab={(e) => updateSelectedTabChannel(e.detail.tab)}
     />
-    <Chat {messages} />
+    <Chat {messages} on:mutte={toggleMutte} {muttedUsers} />
     <Navbar />
 </div>

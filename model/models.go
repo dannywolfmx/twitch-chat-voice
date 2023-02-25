@@ -1,11 +1,14 @@
 package model
 
+type User = string
+
 type Config struct {
 	ClientID      string        `json:"client_id"`
 	Lang          string        `json:"lang"`
 	TwitchInfo    TwitchInfo    `json:"twitch_info"`
 	AnonymousUser AnonymousUser `json:"anonymous_user"`
 	Chats         []Chat        `json:"chats"`
+	MuttedUsers   []User        `json:"mutted_users"`
 }
 
 type Chat struct {
