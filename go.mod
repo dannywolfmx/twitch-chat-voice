@@ -10,6 +10,7 @@ require (
 )
 
 require (
+
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -38,9 +39,11 @@ require (
 require (
 	github.com/hajimehoshi/go-mp3 v0.3.3 // indirect
 	github.com/hajimehoshi/oto/v2 v2.3.1 // indirect
+
 	github.com/rivo/uniseg v0.4.2 // indirect
 	github.com/samber/lo v1.27.1 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
+
 )
 
 // replace github.com/wailsapp/wails/v2 v2.0.0 => /home/daniel/workspace/go/pkg/mod
