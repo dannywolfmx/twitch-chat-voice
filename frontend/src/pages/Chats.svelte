@@ -1,6 +1,5 @@
 <script>
     import { EventsOn } from "../../wailsjs/runtime";
-    import { Config } from "../store/config";
     import Chat from "../components/chat/Chat.svelte";
     import Navbar from "../components/Navbar.svelte";
     import Topbar from "../components/Topbar.svelte";
@@ -13,36 +12,29 @@
 
     let tabs = new Array();
     let chats = new Map();
-    let selectedTab = "";
-    let preSelectedTab = "";
+
+    let selectedTabChannel = "";
     let messages = [];
 
-    Config.subscribe((configs) => {
-        if (configs.length == 0) return;
-        let config = configs[0];
+    async function refreshTabs() {
+        const chatsData = await GetChats();
 
-        const accountInfo = config.twitch_info;
-        if (accountInfo == undefined) {
+        if (chatsData == null) {
             return;
         }
 
-        const name = accountInfo.twitch_user.display_name;
-    });
-
-    const refreshTabs = () => {
-        GetChats().then((c) => {
-            if (c != null) {
-                tabs = c.map((r) => {
-                    r.name_channel;
-                    if (!chats.has(r.name_channel)) {
-                        chats.set(r.name_channel, []);
-                    }
-
-                    return r.name_channel;
-                });
+        tabs = chatsData.map((r) => {
+            r.name_channel;
+            if (!chats.has(r.name_channel)) {
+                chats.set(r.name_channel, []);
             }
+
+            return r.name_channel;
         });
-    };
+
+        console.log(selectedTabChannel);
+        updateSelectedTabChannel(selectedTabChannel);
+    }
 
     //closeTab will find and delete the tab who triggered the event
     // it will manipulate find and delete the element form the tabs array
@@ -52,28 +44,21 @@
         if (index < 0) return;
 
         RemoveChat(tabs[index]).then(() => {
+            if (selectedTabChannel == tabs[index]) {
+                selectedTabChannel = "";
+            }
+
             refreshTabs();
         });
-
-        if (chats.has(selectedTab)) {
-            messages = [...chats.get(selectedTab)];
-        }
     };
 
     const addTab = (e) => {
         let chat = new model.Chat();
-        preSelectedTab = selectedTab;
-        selectedTab = e.detail.name;
-        chat.name_channel = selectedTab;
+        selectedTabChannel = e.detail.name;
+        chat.name_channel = selectedTabChannel;
 
         AddChat(chat).then(refreshTabs);
-
-        console.log(selectedTab);
-        chats.set(selectedTab, []);
-        messages = [...chats.get(selectedTab)];
     };
-
-    refreshTabs();
 
     EventsOn("OnNewMessage", (data) => {
         let message = {
@@ -81,20 +66,36 @@
             user: data.User.Name,
             color: data.User.Color,
         };
-        console.log(selectedTab, data.Channel);
+
         if (chats.has(data.Channel)) {
             chats.get(data.Channel).push(message);
-            if (selectedTab == data.Channel) {
-                messages = [...chats.get(selectedTab)];
+            if (selectedTabChannel == data.Channel) {
+                messages = [...chats.get(selectedTabChannel)];
             }
         }
     });
 
-    const updateSelectedTab = (e) => {
-        preSelectedTab = selectedTab;
-        selectedTab = e.detail.tab;
-        messages = [...chats.get(selectedTab)];
-    };
+    function updateSelectedTabChannel(channelName) {
+        if (tabs.length == 0) {
+            messages = [];
+            return;
+        }
+
+        if (channelName == "") {
+            channelName = tabs[tabs.length - 1];
+        }
+
+        selectedTabChannel = channelName;
+
+        console.log(channelName);
+        messages = [...chats.get(selectedTabChannel)];
+    }
+
+    // first time run page function
+    refreshTabs();
+
+    //TODO: When the topbar tab are clicked on the close button, the select event are triggered too
+    // we need to just follow the close event
 </script>
 
 <div class="h-full flex flex-col">
@@ -102,7 +103,7 @@
         {tabs}
         on:close={closeTab}
         on:add={addTab}
-        on:selectedTab={updateSelectedTab}
+        on:selectedTab={(e) => updateSelectedTabChannel(e.detail.tab)}
     />
     <Chat {messages} />
     <Navbar />
