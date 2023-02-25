@@ -24,7 +24,9 @@ func NewRepoConfigFile(filename string) (*repoConfigFile, error) {
 		if !os.IsNotExist(err) {
 			return nil, err
 		}
-		config = &model.Config{}
+		config = &model.Config{
+			Lang: "es",
+		}
 	}
 
 	return &repoConfigFile{
