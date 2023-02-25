@@ -22,7 +22,6 @@
         });
     };
     function isMutted(user) {
-        console.log(muttedUsers);
         return muttedUsers.includes(user);
     }
 </script>
