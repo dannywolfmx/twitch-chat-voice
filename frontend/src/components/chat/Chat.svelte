@@ -1,7 +1,6 @@
 <script lang="ts">
     import { afterUpdate } from "svelte";
 
-    export let selectedTab = 0;
     export let messages = [];
 
     let element;
@@ -15,10 +14,10 @@
     };
 </script>
 
-<div class="grow sm:p-8 p-2 overflow-hidden scroll-smooth ">
+<div class="grow sm:p-6 p-2 overflow-hidden scroll-smooth ">
     <div
         bind:this={element}
-        class="flex flex-col overflow-y-scroll h-full rounded-2 sm:max-w-128 mx-auto"
+        class="flex flex-col hover:overflow-y-scroll overflow-hidden h-full rounded-2"
     >
         <div class="grow" />
         {#each messages as { user, text, color }}
