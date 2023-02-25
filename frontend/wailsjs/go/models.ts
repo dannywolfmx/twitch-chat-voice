@@ -94,6 +94,7 @@ export namespace model {
 	    twitch_info: TwitchInfo;
 	    anonymous_user: AnonymousUser;
 	    chats: Chat[];
+	    mutted_users: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -106,6 +107,7 @@ export namespace model {
 	        this.twitch_info = this.convertValues(source["twitch_info"], TwitchInfo);
 	        this.anonymous_user = this.convertValues(source["anonymous_user"], AnonymousUser);
 	        this.chats = this.convertValues(source["chats"], Chat);
+	        this.mutted_users = source["mutted_users"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

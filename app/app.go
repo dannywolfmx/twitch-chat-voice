@@ -102,7 +102,9 @@ func (a *MainApp) startup(ctx context.Context) {
 			lastUser = user
 			m = fmt.Sprintf("%s ha dicho %s", user, message.Message)
 		}
-		go a.Player.Add(m)
+		if !a.Config.IsMutted(user) {
+			go a.Player.Add(m)
+		}
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
 	})
 

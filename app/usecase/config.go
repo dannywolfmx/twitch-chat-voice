@@ -13,9 +13,12 @@ type Config interface {
 	GetConfig() *model.Config
 	GetChats() []model.Chat
 	GetLang() string
+	GetMuttedUsers() []model.User
 	GetTwitchToken() string
 	GetTwitchUserInfo() model.TwitchUser
+	IsMutted(username model.User) bool
 	RemoveChat(nameChannel string) error
+	ToggleMuttedUser(username model.User) ([]model.User, error)
 	SaveAnonymousUsername(username string) error
 	SaveLang(lang string) error
 	SaveTwitchInfo(twitchInfo model.TwitchInfo) error
@@ -63,6 +66,10 @@ func (c *config) GetLang() string {
 	return c.repository.GetLang()
 }
 
+func (c *config) GetMuttedUsers() []model.User {
+	return c.repository.GetMuttedUsers()
+}
+
 func (c *config) GetTwitchToken() string {
 	return c.repository.GetTwitchToken()
 }
@@ -71,9 +78,31 @@ func (c *config) GetTwitchUserInfo() model.TwitchUser {
 	return c.repository.GetTwitchUserInfo()
 }
 
+func (c *config) IsMutted(username model.User) bool {
+	var isMutted bool
+	users := c.repository.GetMuttedUsers()
+
+	for _, user := range users {
+		if user == username {
+			isMutted = true
+			break
+		}
+	}
+
+	return isMutted
+}
+
 func (c *config) RemoveChat(nameChannel string) error {
 	c.client.Depart(nameChannel)
 	return c.repository.RemoveChat(nameChannel)
+}
+
+func (c *config) ToggleMuttedUser(username model.User) ([]model.User, error) {
+	if c.IsMutted(username) {
+		return c.repository.RemoveMuttedUser(username)
+	}
+
+	return c.repository.AddMuttedUser(username)
 }
 
 func (c *config) SaveAnonymousUsername(username string) error {

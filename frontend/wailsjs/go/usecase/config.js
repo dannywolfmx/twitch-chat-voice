@@ -26,12 +26,20 @@ export function GetLang() {
   return window['go']['usecase']['config']['GetLang']();
 }
 
+export function GetMuttedUsers() {
+  return window['go']['usecase']['config']['GetMuttedUsers']();
+}
+
 export function GetTwitchToken() {
   return window['go']['usecase']['config']['GetTwitchToken']();
 }
 
 export function GetTwitchUserInfo() {
   return window['go']['usecase']['config']['GetTwitchUserInfo']();
+}
+
+export function IsMutted(arg1) {
+  return window['go']['usecase']['config']['IsMutted'](arg1);
 }
 
 export function RemoveChat(arg1) {
@@ -48,4 +56,8 @@ export function SaveLang(arg1) {
 
 export function SaveTwitchInfo(arg1) {
   return window['go']['usecase']['config']['SaveTwitchInfo'](arg1);
+}
+
+export function ToggleMuttedUser(arg1) {
+  return window['go']['usecase']['config']['ToggleMuttedUser'](arg1);
 }
