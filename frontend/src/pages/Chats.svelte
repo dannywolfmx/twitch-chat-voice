@@ -109,7 +109,7 @@
     }
 
     async function getMuttedUsers() {
-        muttedUsers = await GetMuttedUsers();
+        muttedUsers = (await GetMuttedUsers()) ?? [];
     }
 
     // first time run page function
