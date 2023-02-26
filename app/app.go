@@ -86,6 +86,16 @@ type Message struct {
 	User    string `json:"user"`
 }
 
+const COMMAND_START_MESSAGE_RUNE = '!'
+
+func isACommandMessage(message string) bool {
+	if len(message) == 0 {
+		return false
+	}
+
+	return message[0] == COMMAND_START_MESSAGE_RUNE
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *MainApp) startup(ctx context.Context) {
@@ -95,15 +105,15 @@ func (a *MainApp) startup(ctx context.Context) {
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		//Prevent the tts repeat the las name
 		user := message.User.Name
-		m := ""
+		textMessage := ""
 		if lastUser == user {
-			m = message.Message
+			textMessage = message.Message
 		} else {
 			lastUser = user
-			m = fmt.Sprintf("%s ha dicho %s", user, message.Message)
+			textMessage = fmt.Sprintf("%s ha dicho %s", user, message.Message)
 		}
-		if !a.Config.IsMutted(user) {
-			go a.Player.Add(m)
+		if !a.Config.IsMutted(user) && !isACommandMessage(textMessage) {
+			go a.Player.Add(textMessage)
 		}
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
 	})
