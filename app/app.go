@@ -87,6 +87,9 @@ type Message struct {
 }
 
 const COMMAND_START_MESSAGE_RUNE = '!'
+const VIP_BADGE = "vip"
+const MODERATOR_BADGE = "moderator"
+const BROADCASTER_BADGE = "broadcaster"
 
 func isACommandMessage(message string) bool {
 	if len(message) == 0 {
@@ -94,6 +97,14 @@ func isACommandMessage(message string) bool {
 	}
 
 	return message[0] == COMMAND_START_MESSAGE_RUNE
+}
+
+func isVIPUser(user twitch.User) bool {
+	_, isVip := user.Badges[VIP_BADGE]
+	_, isMod := user.Badges[MODERATOR_BADGE]
+	_, isBroadcaster := user.Badges[BROADCASTER_BADGE]
+
+	return isVip || isMod || isBroadcaster
 }
 
 // startup is called when the app starts. The context is saved
@@ -112,7 +123,7 @@ func (a *MainApp) startup(ctx context.Context) {
 			lastUser = user
 			textMessage = fmt.Sprintf("%s ha dicho %s", user, message.Message)
 		}
-		if !a.Config.IsMutted(user) && !isACommandMessage(textMessage) {
+		if !a.Config.IsMutted(user) && !isACommandMessage(message.Message) { // && isVIPUser(message.User) {
 			go a.Player.Add(textMessage)
 		}
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
