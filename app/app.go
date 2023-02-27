@@ -103,6 +103,11 @@ func (a *MainApp) startup(ctx context.Context) {
 	a.ctx = ctx
 
 	a.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		// Prevent the TTS from speaking commands.
+		if isACommandMessage(message.Message) {
+			return
+		}
+
 		//Prevent the tts repeat the las name
 		user := message.User.Name
 		textMessage := ""
@@ -112,7 +117,7 @@ func (a *MainApp) startup(ctx context.Context) {
 			lastUser = user
 			textMessage = fmt.Sprintf("%s ha dicho %s", user, message.Message)
 		}
-		if !a.Config.IsMutted(user) && !isACommandMessage(textMessage) {
+		if !a.Config.IsMutted(user) {
 			go a.Player.Add(textMessage)
 		}
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
