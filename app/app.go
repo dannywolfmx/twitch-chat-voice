@@ -123,7 +123,7 @@ func (a *MainApp) startup(ctx context.Context) {
 			lastUser = user
 			textMessage = fmt.Sprintf("%s ha dicho %s", user, message.Message)
 		}
-		if !a.Config.IsMutted(user) && !isACommandMessage(textMessage) { // && isVIPUser(message.User) {
+		if !a.Config.IsMutted(user) && !isACommandMessage(message.Message) { // && isVIPUser(message.User) {
 			go a.Player.Add(textMessage)
 		}
 		runtime.EventsEmit(ctx, "OnNewMessage", message)
