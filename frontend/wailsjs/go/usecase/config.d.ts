@@ -16,6 +16,8 @@ export function GetLang():Promise<string>;
 
 export function GetMuttedUsers():Promise<Array<string>>;
 
+export function GetSampleRateOfTTS():Promise<number>;
+
 export function GetTwitchToken():Promise<string>;
 
 export function GetTwitchUserInfo():Promise<model.TwitchUser>;

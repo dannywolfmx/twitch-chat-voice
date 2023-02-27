@@ -13,6 +13,7 @@ type RepoConfig interface {
 	GetMuttedUsers() []model.User
 	GetTwitchToken() string
 	GetTwitchUserInfo() model.TwitchUser
+	GetSampleRateOfTTS() int
 	RemoveChat(nameChannel string) error
 	RemoveMuttedUser(user model.User) ([]model.User, error)
 	SaveAnonymousUsername(username string) error

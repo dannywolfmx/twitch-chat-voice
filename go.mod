@@ -3,7 +3,7 @@ module github.com/dannywolfmx/twitch-chat-voice
 go 1.20
 
 require (
-	github.com/dannywolfmx/go-tts v0.2.5
+	github.com/dannywolfmx/go-tts v0.2.6
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/toqueteos/webbrowser v1.2.0
 	github.com/wailsapp/wails/v2 v2.3.1

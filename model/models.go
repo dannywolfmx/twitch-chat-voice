@@ -9,6 +9,7 @@ type Config struct {
 	AnonymousUser AnonymousUser `json:"anonymous_user"`
 	Chats         []Chat        `json:"chats"`
 	MuttedUsers   []User        `json:"mutted_users"`
+	SampleRateTTS int           `json:"samplerate_tts"`
 }
 
 type Chat struct {
