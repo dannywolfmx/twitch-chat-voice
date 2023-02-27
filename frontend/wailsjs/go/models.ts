@@ -95,6 +95,7 @@ export namespace model {
 	    anonymous_user: AnonymousUser;
 	    chats: Chat[];
 	    mutted_users: string[];
+	    samplerate_tts: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -108,6 +109,7 @@ export namespace model {
 	        this.anonymous_user = this.convertValues(source["anonymous_user"], AnonymousUser);
 	        this.chats = this.convertValues(source["chats"], Chat);
 	        this.mutted_users = source["mutted_users"];
+	        this.samplerate_tts = source["samplerate_tts"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

@@ -25,7 +25,8 @@ func NewRepoConfigFile(filename string) (*repoConfigFile, error) {
 			return nil, err
 		}
 		config = &model.Config{
-			Lang: "es",
+			Lang:          "es",
+			SampleRateTTS: 24000,
 		}
 	}
 
@@ -86,6 +87,9 @@ func (r *repoConfigFile) GetTwitchUserInfo() model.TwitchUser {
 
 func (r *repoConfigFile) GetTwitchToken() string {
 	return r.config.TwitchInfo.Token
+}
+func (r *repoConfigFile) GetSampleRateOfTTS() int {
+	return r.config.SampleRateTTS
 }
 
 func getConfig(filename string) (*model.Config, error) {

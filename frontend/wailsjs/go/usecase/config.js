@@ -30,6 +30,10 @@ export function GetMuttedUsers() {
   return window['go']['usecase']['config']['GetMuttedUsers']();
 }
 
+export function GetSampleRateOfTTS() {
+  return window['go']['usecase']['config']['GetSampleRateOfTTS']();
+}
+
 export function GetTwitchToken() {
   return window['go']['usecase']['config']['GetTwitchToken']();
 }

@@ -45,7 +45,8 @@ func main() {
 		fmt.Print("Note: you're running the program without a client id. Social integration is disabled.")
 	}
 
-	player := tts.NewTTS(repoConfig.GetLang())
+	fmt.Println(config.GetSampleRateOfTTS())
+	player := tts.NewTTS(repoConfig.GetLang(), config.GetSampleRateOfTTS())
 	player.Play()
 
 	a := &app.MainApp{

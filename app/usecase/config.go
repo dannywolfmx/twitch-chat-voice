@@ -16,6 +16,7 @@ type Config interface {
 	GetMuttedUsers() []model.User
 	GetTwitchToken() string
 	GetTwitchUserInfo() model.TwitchUser
+	GetSampleRateOfTTS() int
 	IsMutted(username model.User) bool
 	RemoveChat(nameChannel string) error
 	ToggleMuttedUser(username model.User) ([]model.User, error)
@@ -76,6 +77,13 @@ func (c *config) GetTwitchToken() string {
 
 func (c *config) GetTwitchUserInfo() model.TwitchUser {
 	return c.repository.GetTwitchUserInfo()
+}
+func (c *config) GetSampleRateOfTTS() int {
+	sample := c.repository.GetSampleRateOfTTS()
+	if sample == 0 {
+		return 24000
+	}
+	return sample
 }
 
 func (c *config) IsMutted(username model.User) bool {
