@@ -43,5 +43,3 @@ require (
 	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb // indirect
 
 )
-
-// replace github.com/wailsapp/wails/v2 v2.0.0 => /home/daniel/workspace/go/pkg/mod
