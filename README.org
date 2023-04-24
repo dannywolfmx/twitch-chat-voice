@@ -1,6 +1,6 @@
-* Libreries:
+* Libraries:
 ** [[https://github.com/wailsapp/wails][Wails]]
-** [[github.com/dannywolfmx/go-tts][go-tts]]:  tts system text to speach (it uses [[https://github.com/hajimehoshi/oto][oto]])
+** [[https://github.com/dannywolfmx/go-tts][go-tts]]:  tts system text to speach (it uses [[https://github.com/hajimehoshi/oto][oto]])
 
 * Instalation
 ** Prerequisites

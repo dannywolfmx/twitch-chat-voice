@@ -26,10 +26,10 @@
     }
 </script>
 
-<div class="grow sm:p-6 p-2 overflow-hidden scroll-smooth ">
+<div class="grow sm:p-6 p-2 overflow-hidden scroll-smooth">
     <div
         bind:this={element}
-        class="flex flex-col hover:overflow-y-scroll overflow-hidden h-full rounded-2"
+        class="flex flex-col hover:overflow-y-auto overflow-hidden h-full rounded-2"
     >
         <div class="grow" />
         {#each messages as { user, text, color }}
