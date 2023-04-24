@@ -11,6 +11,7 @@
         ToggleMuttedUser,
     } from "../../wailsjs/go/usecase/config";
     import { model } from "../../wailsjs/go/models";
+    import { readMessage } from "./chat";
 
     let tabs = new Array();
     let chats = new Map();
@@ -73,6 +74,7 @@
         if (chats.has(data.Channel)) {
             chats.get(data.Channel).push(message);
             if (selectedTabChannel == data.Channel) {
+                readMessage(data.Message);
                 messages = [...chats.get(selectedTabChannel)];
             }
         }
